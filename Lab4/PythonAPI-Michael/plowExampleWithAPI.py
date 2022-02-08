@@ -8,6 +8,9 @@
 #
 # IMPORTANT: for each successful call to simxStart, there
 # should be a corresponding call to simxFinish at the end!
+import sys
+import os
+sys.path.append(os.path.dirname(os.path.abspath(__file__))+"/PythonAPIFiles")
 
 try:
     import sim
