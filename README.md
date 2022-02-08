@@ -8,8 +8,14 @@ We will also be including the Python code to drvie the autonomous plow through t
 More information will be added to the repo as we complete tasks<br><br>
   
 ## Lab 4
+Each student has completed their corresponding task and created a sub-folder under Lab4.
+A Project Main folder has been created for combining our individual lab work each lab into the main project. Currently it only contains the pythonAPI code but will include the model body with attched plow and sensors in the next lab.
+
 Tasks:
 - Build Plow Body (Alfred)
 - Build Unfolding Plow (Edmond)
 - Connect Python API (Michael)
-- Build Sensors and Connect with Python API (Deji)
+- Determine Required Sensors and Positioning (Deji)
+
+## Lab 5
+In lab 5 we will be combining the body, plow, and sensors as well as connecting them to the python API and working on some basic movement control.
