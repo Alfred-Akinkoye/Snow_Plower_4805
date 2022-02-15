@@ -12,6 +12,7 @@
 # Import the pythonAPI files from their directory
 import sys
 import os
+import time
 sys.path.append(os.path.dirname(os.path.abspath(__file__))+"/PythonAPI")
 
 try:
@@ -59,11 +60,13 @@ class API:
         return sim.simxGetObjectHandle(self.clientID, name, sim.simx_opmode_blocking)[1]
 
     def getJointPosition(self, joint):
-        
         return sim.simxGetJointPosition(self.clientID, joint, sim.simx_opmode_blocking)[1]
 
     def setJointVelocity(self, joint, velocity):
         sim.simxSetJointTargetVelocity(self.clientID, joint, velocity, sim.simx_opmode_oneshot)
+
+    def setJointPosition(self, joint, position):
+        return sim.simxSetJointTargetPosition(self.clientID, joint, position, sim.simx_opmode_oneshot_wait)
 
 class Plower:
     def __init__(self):
@@ -71,7 +74,16 @@ class Plower:
 
     def connectAPI(self):
         return self.api.connect()
-        
+    
+    def getObjectHandles(self):
+        # get motor joints
+        self.LeftJoint = self.api.getObject("LeftJoint")
+        self.RightJoint = self.api.getObject("RightJoint")
+
+        # get plow control joints
+        self.RotatorL = self.api.getObject("RotatorL")
+        self.RotatorR = self.api.getObject("RotatorR")
+
     def run(self):
         # MODIFY CODE HERE
 
@@ -96,6 +108,28 @@ class Plower:
                 self.api.setJointVelocity(joint, -math.pi/10)
         
         self.stop()
+
+    def unfoldPlow(self):
+
+        print(self.api.setJointPosition(self.RotatorL, math.pi/2))
+        print(self.api.setJointPosition(self.RotatorR, math.pi/2))
+
+    def foldPlow(self):
+
+        print(self.api.setJointPosition(self.RotatorL, 0))
+        print(self.api.setJointPosition(self.RotatorR, 0))
+
+    def setMove(self, speed):
+        print(self.api.setJointVelocity(self.LeftJoint,speed))
+        print(self.api.setJointVelocity(self.RightJoint,speed))
+
+    def setStop(self):
+        print(self.api.setJointVelocity(self.LeftJoint,0))
+        print(self.api.setJointVelocity(self.RightJoint,0))
+
+    def inPlaceRotation(self, direction, speed):
+        self.api.setJointVelocity(self.LeftJoint, speed * direction)
+        self.api.setJointVelocity(self.RightJoint, speed * direction * -1)
     
     def stop(self):
         self.api.disconnect()
@@ -105,7 +139,13 @@ if __name__ == '__main__':
     print ('Program started')
     plower = Plower()
     if (plower.connectAPI()):
-        plower.run()
+        plower.getObjectHandles()
+        print("Unfolding")
+        plower.unfoldPlow()
+        time.sleep(5)
+        print("Folding")
+        plower.foldPlow()
+
 
 
 
