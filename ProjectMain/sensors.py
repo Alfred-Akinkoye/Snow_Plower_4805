@@ -72,10 +72,11 @@ class Sensor:
             rightv = nominalv
             leftv  = nominalv
             if(sensor_values[0] == 1):
-                leftv = 1
-                rightv = 1
+                leftv = leftv*-1
+                rightv = rightv*-1
             if(sensor_values[2] == 1):
-                rightv = 1
+                leftv = leftv*-1
+                rightv = rightv*-1
 
             returnCode = sim.simxSetJointTargetVelocity(clientID,Left_Joint,leftv,sim.simx_opmode_oneshot);
             returnCode = sim.simxSetJointTargetVelocity(clientID,Right_Joint,rightv,sim.simx_opmode_oneshot);
