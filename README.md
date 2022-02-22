@@ -19,3 +19,12 @@ Tasks:
 
 ## Lab 5
 In lab 5 we will be combining the body, plow, and sensors as well as connecting them to the python API and working on some basic movement control.
+
+Tasks:
+- Connect Sensors to Robot (Deji)
+- Connect Sensors to PythonAPI (Alfred)
+- Basic Motor Control (Edmond)
+- Connect Plow to Robot (Michael)
+
+## Lab 6
+In lab 6 we will be completing the Progress Report and doing some testing on the various compoenents assembled so far. In any remaining time we will begin work on prograaming pathing and object avoidance.
