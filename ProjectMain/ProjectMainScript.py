@@ -12,7 +12,6 @@
 # Import the pythonAPI files from their directory
 import sys
 import os
-import time
 sys.path.append(os.path.dirname(os.path.abspath(__file__))+"/PythonAPI")
 
 try:
@@ -51,6 +50,9 @@ class API:
         sim.simxGetPingTime(self.clientID)
         # Now close the connection to CoppeliaSim:
         sim.simxFinish(self.clientID)
+    
+    def stopSimulation(self):
+        sim.simxStopSimulation(self.clientID, sim.simx_opmode_oneshot)
 
     # ADD FUNCTIONS TO CALL API FUNCTIONS HERE (AS DESIRED)
     def sendMessage(self, message):
@@ -63,10 +65,13 @@ class API:
         return sim.simxGetJointPosition(self.clientID, joint, sim.simx_opmode_blocking)[1]
 
     def setJointVelocity(self, joint, velocity):
-        sim.simxSetJointTargetVelocity(self.clientID, joint, velocity, sim.simx_opmode_oneshot)
+        return sim.simxSetJointTargetVelocity(self.clientID, joint, velocity, sim.simx_opmode_blocking)
 
     def setJointPosition(self, joint, position):
         return sim.simxSetJointTargetPosition(self.clientID, joint, position, sim.simx_opmode_oneshot_wait)
+
+    def readVisionSensor(self,name):
+        return sim.simxReadVisionSensor(self.clientID, name, sim.simx_opmode_blocking)
 
 class Plower:
     def __init__(self):
@@ -75,14 +80,20 @@ class Plower:
     def connectAPI(self):
         return self.api.connect()
     
-    def getObjectHandles(self):
+    def linkObjectHandles(self):
         # get motor joints
         self.LeftJoint = self.api.getObject("LeftJoint")
         self.RightJoint = self.api.getObject("RightJoint")
 
         # get plow control joints
-        self.RotatorL = self.api.getObject("RotatorL")
-        self.RotatorR = self.api.getObject("RotatorR")
+        self.plowLeftJoint = self.api.getObject("LeftPlowJoint")
+        self.plowRightJoint = self.api.getObject("RightPlowJoint")
+
+        # get vision example joint
+        self.BackSensor = self.api.getObject('BackSensor')
+        self.FrontSensor = self.api.getObject('FrontSensor')
+        self.LeftWheelSensor = self.api.getObject('LeftWheelSensor')
+        self.RightWheelSensor = self.api.getObject('RightWheelSensor')
 
     def run(self):
         # MODIFY CODE HERE
@@ -91,60 +102,79 @@ class Plower:
         # Send some data to CoppeliaSim in a non-blocking fashion:
         self.api.sendMessage("Hello from Python! :)")
 
-         # Get plow example joint
-        joint = self.api.getObject('Revolute_joint')
-        direction_forward = True
+        plower.linkObjectHandles()
 
-        while (True):
-            if (self.api.getJointPosition(joint) > math.pi/2):
-                direction_forward = False
+        print("Unfolding Plow")
+        plower.unfoldPlow()
+        time.sleep(5)
 
-            if (self.api.getJointPosition(joint) < 0):
-                direction_forward = True
-            
-            if (direction_forward):
-                self.api.setJointVelocity(joint, math.pi/10)
-            else:
-                self.api.setJointVelocity(joint, -math.pi/10)
-        
-        self.stop()
+        vision = [self.BackSensor,self.FrontSensor,self.LeftWheelSensor,self.RightWheelSensor]
+
+        nominalv = 6
+        self.setMove(nominalv)
+        try:
+            print("Running Sensor Loop")
+            while (True):
+                pass
+                sensor_values = [0,0,0,0]
+                for i in range(0,4):
+                    detectionState = self.api.readVisionSensor(vision[i]);
+                    #print(detectionState)
+                    if (detectionState[0] < 0):
+                        if detectionState[2][11] < 0.3:
+                            sensor_values[i] = 1
+                        else:
+                            sensor_values[i] = 0
+
+                rightv = nominalv
+                leftv  = nominalv
+                if(sensor_values[0] == 1 or sensor_values[1] == 1 or sensor_values[2] == 1 or sensor_values[3] == 1):
+                    leftv = leftv*-1
+                    rightv = rightv*-1
+
+                #self.api.setJointVelocity(self.LeftJoint,nominalv*0)
+                #self.api.setJointVelocity(self.RightJoint,nominalv*0)
+        except KeyboardInterrupt:
+            self.stop()
 
     def unfoldPlow(self):
-
-        print(self.api.setJointPosition(self.RotatorL, math.pi/2))
-        print(self.api.setJointPosition(self.RotatorR, math.pi/2))
+        print(self.api.setJointPosition(self.plowLeftJoint, math.pi/2))
+        print(self.api.setJointPosition(self.plowRightJoint, -math.pi/2))
 
     def foldPlow(self):
-
-        print(self.api.setJointPosition(self.RotatorL, 0))
-        print(self.api.setJointPosition(self.RotatorR, 0))
+        self.api.setJointPosition(self.plowLeftJoint, 0)
+        self.api.setJointPosition(self.plowRightJoint, 0)
 
     def setMove(self, speed):
         print(self.api.setJointVelocity(self.LeftJoint,speed))
         print(self.api.setJointVelocity(self.RightJoint,speed))
 
     def setStop(self):
-        print(self.api.setJointVelocity(self.LeftJoint,0))
-        print(self.api.setJointVelocity(self.RightJoint,0))
+        self.api.setJointVelocity(self.LeftJoint,0)
+        self.api.setJointVelocity(self.RightJoint,0)
 
     def inPlaceRotation(self, direction, speed):
         self.api.setJointVelocity(self.LeftJoint, speed * direction)
         self.api.setJointVelocity(self.RightJoint, speed * direction * -1)
     
     def stop(self):
+        print("Stopping...")
+        # stop the simulation
+        self.api.stopSimulation()
+        print("Simulation Stopped")
         self.api.disconnect()
-        print("Plower stopped.")
+        print("Plower Disconnected")
+        
+        # End Program Execution
+        print("Exiting")
+        sys.exit(0)
 
 if __name__ == '__main__':
     print ('Program started')
     plower = Plower()
     if (plower.connectAPI()):
-        plower.getObjectHandles()
-        print("Unfolding")
-        plower.unfoldPlow()
-        time.sleep(5)
-        print("Folding")
-        plower.foldPlow()
+        plower.run()
+        
 
 
 
