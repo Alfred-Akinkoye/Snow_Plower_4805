@@ -27,4 +27,10 @@ Tasks:
 - Connect Plow to Robot (Michael)
 
 ## Lab 6
-In lab 6 we will be completing the Progress Report and doing some testing on the various compoenents assembled so far. In any remaining time we will begin work on prograaming pathing and object avoidance.
+The group as a whole is working on the progress report together. We had a meeting at the beginning of the lab period to discuss the pathfinding algorithm, and how that would be handled. Then we broke out to handle individual parts of the progress report.
+
+Tasks:
+- State Chart (Deji)
+- Github, Event vs Time driven (Alfred)
+- Budget (Edmond)
+- Sequence Diagrams, Real World Sensor Comparisons (Michael)
