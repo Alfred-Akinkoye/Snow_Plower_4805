@@ -67,14 +67,18 @@ class Plower:
         print("Unfolding Plow")
         self.unfoldPlow()
 
-        self.movementControl.timedRotate(2, 2)
+        #self.movementControl.timedRotate(2, 2)
 
         self.movementControl.setVelocity(4)
 
         while True:
-            time.sleep(8)
-            self.movementControl.timedRotate(2, 2.3)
-            self.movementControl.setVelocity(4)
+
+            if(self.api.disconnected()):
+                self.stop()
+                raise Exception("CoppeliaSim Stopped")
+            #time.sleep(8)
+            #self.movementControl.timedRotate(2, 2.3)
+            #self.movementControl.setVelocity(4)
     
     def stop(self):
         print("Stopping...")
