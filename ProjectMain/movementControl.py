@@ -36,6 +36,10 @@ class MovementControl():
         result = self.api.getObjectPosition(self.plowerOb)
         return result[1]
 
+    def getObjectOrientaion(self):
+        result = self.api.getObjectOrientation(self.plowerOb)
+        return result[1][2]
+
     def rotateDegrees(self, degrees):
         # Rotate a set number of degrees (Either ***by checking orientation*** or by time? or by wheel encoding)
         pass

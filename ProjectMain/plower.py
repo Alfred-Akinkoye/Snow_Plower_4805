@@ -38,6 +38,7 @@ import math
 class Plower:
     def __init__(self):
         self.api = API()
+        self.isEast = True
         
     def connectAPI(self):
         if (self.api.connect()):
@@ -50,9 +51,6 @@ class Plower:
         # get plow control joints
         self.plowLeftJoint = self.api.getObject("LeftPlowJoint")
         self.plowRightJoint = self.api.getObject("RightPlowJoint")
-        
-
-
 
     def run(self):
         # MODIFY CODE HERE
@@ -63,20 +61,23 @@ class Plower:
 
         self.linkObjectHandles()
 
-        print(self.movementControl.getObjectPosition())
+        #print(self.movementControl.getObjectPosition())
         self.movementControl.timedMove(2, 2)
 
         print("Unfolding Plow")
         self.unfoldPlow()
-        print(self.movementControl.getObjectPosition())
+        #print(self.movementControl.getObjectPosition())
+        print(self.movementControl.getObjectOrientaion())
         self.movementControl.timedRotate(2, 2)
-
+        print(self.movementControl.getObjectOrientaion())
         self.movementControl.setVelocity(4)
 
         while True:
             time.sleep(8)
-            print(self.movementControl.getObjectPosition())
+            #print(self.movementControl.getObjectPosition())
+            print(self.movementControl.getObjectOrientaion())
             self.movementControl.timedRotate(2, 2.3)
+            print(self.movementControl.getObjectOrientaion())
             self.movementControl.setVelocity(4)
     
     def stop(self):

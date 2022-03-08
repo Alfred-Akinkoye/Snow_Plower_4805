@@ -66,6 +66,8 @@ class API:
     # Positional Tracking
     def getObjectPosition(self, handle):
         return sim.simxGetObjectPosition(self.clientID, handle, -1, sim.simx_opmode_blocking)
+    def getObjectOrientation(self, handle):
+        return sim.simxGetObjectOrientation(self.clientID, handle, -1, sim.simx_opmode_blocking) 
 
     # Movement
     def setJointVelocity(self, joint, velocity):
