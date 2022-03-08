@@ -7,6 +7,7 @@ class MovementControl():
 
         self.LeftWheel = Wheel(api, 'LeftJoint')
         self.RightWheel = Wheel(api, 'RightJoint')
+        self.plowerOb = self.api.getObject("Plower")
         
 
     def setVelocity(self, speed):
@@ -30,6 +31,10 @@ class MovementControl():
         self.setVelocity(speed)
         time.sleep(duration)
         self.stop()
+
+    def getObjectPosition(self):
+        result = self.api.getObjectPosition(self.plowerOb)
+        return result[1]
 
     def rotateDegrees(self, degrees):
         # Rotate a set number of degrees (Either ***by checking orientation*** or by time? or by wheel encoding)
