@@ -39,6 +39,12 @@ class API:
     def stopSimulation(self):
         sim.simxStopSimulation(self.clientID, sim.simx_opmode_oneshot)
 
+    def disconnected(self):
+        connectionID = sim.simxGetConnectionId(self.clientID)
+        if (connectionID == -1):
+            return True
+        return False
+
     # ADD FUNCTIONS TO CALL API FUNCTIONS HERE (AS DESIRED)
 
     # Messages (Logging)
