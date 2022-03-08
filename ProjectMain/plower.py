@@ -50,6 +50,7 @@ class Plower:
         # get plow control joints
         self.plowLeftJoint = self.api.getObject("LeftPlowJoint")
         self.plowRightJoint = self.api.getObject("RightPlowJoint")
+        self.plowerOb = self.api.getObject("Plower")
 
 
 
@@ -62,17 +63,19 @@ class Plower:
 
         self.linkObjectHandles()
 
+        print(self.api.getObjectPosition(self.plowerOb))
         self.movementControl.timedMove(2, 2)
 
         print("Unfolding Plow")
         self.unfoldPlow()
-
+        print(self.api.getObjectPosition(self.plowerOb))
         self.movementControl.timedRotate(2, 2)
 
         self.movementControl.setVelocity(4)
 
         while True:
             time.sleep(8)
+            print(self.api.getObjectPosition(self.plowerOb))
             self.movementControl.timedRotate(2, 2.3)
             self.movementControl.setVelocity(4)
     

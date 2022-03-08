@@ -57,7 +57,9 @@ class API:
     def readVisionSensor(self, name):
         return sim.simxReadVisionSensor(self.clientID, name, sim.simx_opmode_blocking)
 
-
+    # Positional Tracking
+    def getObjectPosition(self, handle):
+        return sim.simxGetObjectPosition(self.clientID, handle, -1, sim.simx_opmode_blocking)
 
     # Movement
     def setJointVelocity(self, joint, velocity):
