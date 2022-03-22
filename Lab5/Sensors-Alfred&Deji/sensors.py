@@ -13,6 +13,7 @@
 from asyncio.windows_events import NULL
 import sys
 import os
+import time
 sys.path.append(os.path.dirname(os.path.abspath(__file__))+"/PythonAPI")
 
 try:
@@ -69,9 +70,9 @@ class API:
         return sim.simxSetJointTargetPosition(self.clientID, joint, position, sim.simx_opmode_oneshot_wait)
 
     def readVisionSensor(self,name):
-        return sim.simxReadVisionSensor(self.clientID, name, sim.simx_opmode_blocking)
+        return sim.simxReadVisionSensor(self.clientID,name,sim.simx_opmode_blocking)
 
-class Sensor:
+class VisionSensor:
     def __init__(self):
         self.api = API()
 
@@ -88,34 +89,33 @@ class Sensor:
         self.RightJoint=self.api.getObject('RightJoint')
 
          # Get vision example joint
-        self.BackSensor = self.api.getObject('BackSensor')
-        self.FrontSensor = self.api.getObject('FrontSensor')
-        self.LeftWheelSensor = self.api.getObject('LeftWheelSensor')
-        self.RightWheelSensor = self.api.getObject('RightWheelSensor')
-        vision = [self.BackSensor,self.FrontSensor,self.LeftWheelSensor,self.RightWheelSensor]
+        self.BackSensor = self.api.getObject('Back_IR')
+        self.FrontSensor = self.api.getObject('Front_IR')
+        self.LeftWheelSensor = self.api.getObject('Lef_IR')
+        self.RightWheelSensor = self.api.getObject('Right_IR')
+        vision = [self.FrontSensor,self.LeftWheelSensor,self.RightWheelSensor,self.BackSensor]
 
-        nominalv = 5
+        nominalv = 2
         self.api.setJointVelocity(self.LeftJoint,nominalv)
         self.api.setJointVelocity(self.RightJoint,nominalv)
         while (True):
             sensor_values = [0,0,0,0]
-            for i in range(0,4):
-                detectionState = self.api.readVisionSensor(vision[i]);
-                #print(detectionState)
-                if (detectionState[0] < 0):
-                    if detectionState[2][11] < 0.3:
-                        sensor_values[i] = 1
-                    else:
-                        sensor_values[i] = 0
+            # for i in range(0,4):
+            [temp,detectionState,data] = self.api.readVisionSensor(vision[0]);
+            print(data[0][11])
+            if data[0][11] < 0.3:
+                rightv = nominalv
+                leftv  = nominalv
+                print("out of bounds")
+                self.api.setJointVelocity(self.LeftJoint,nominalv*0)
+                self.api.setJointVelocity(self.RightJoint,nominalv*0)
+                break
 
-            rightv = nominalv
-            leftv  = nominalv
-            if(sensor_values[0] == 1 or sensor_values[1] == 1 or sensor_values[2] == 1 or sensor_values[3] == 1):
-                leftv = leftv*-1
-                rightv = rightv*-1
-
-            self.api.setJointVelocity(self.LeftJoint,nominalv*0)
-            self.api.setJointVelocity(self.RightJoint,nominalv*0)
+                # if (detectionState[0] < 0):
+                #     if detectionState[2][11] < 0.3:
+                #         sensor_values[i] = 1
+                #     else:
+                #         sensor_values[i] = 0
         self.stop()
 
     def stop(self):
@@ -124,41 +124,6 @@ class Sensor:
 
 if __name__ == '__main__':
     print ('Program started')
-    sensor = Sensor()
+    sensor = VisionSensor()
     if (sensor.connectAPI()):
         sensor.run()
-
-### ---Example Code from Lab2--- ###
-#     [returnCode,Left_Joint]=sim.simxGetObjectHandle(clientID,'Left_Motor',sim.simx_opmode_blocking)
-#     [returnCode,Right_Joint]=sim.simxGetObjectHandle(clientID,'Right_Motor',sim.simx_opmode_blocking)
-
-#     vision = [Left_Joint,Left_Joint,Left_Joint];
-
-#     [returnCode,vision[0]] = sim.simxGetObjectHandle(clientID,'Left_Sensor',sim.simx_opmode_blocking)
-#     [returnCode,vision[1]] = sim.simxGetObjectHandle(clientID,'Middle_Sensor',sim.simx_opmode_blocking)
-#     [returnCode,vision[2]] = sim.simxGetObjectHandle(clientID,'Right_Sensor',sim.simx_opmode_blocking)
-
-#     nominalv = -1
-#     while(True):
-#         sensor_values = [0,0,0];
-#         for i in range(0,3):
-#             [returnCode,detectionState,data] = sim.simxReadVisionSensor(clientID,vision[i],sim.simx_opmode_blocking);
-#             #print(returnCode)
-#             #print(detectionState)
-#             #print(data)
-#             if (detectionState > -1):
-#                 if data[0][11] < 0.3:
-#                     sensor_values[i] = 1;
-#                 else:
-#                     sensor_values[i] = 0;
-
-#         rightv = nominalv;
-#         leftv  = nominalv;
-#         if(sensor_values[0] == 1):
-#             leftv = 0;
-#         if(sensor_values[2] == 1):
-#             rightv = 0;
-
-#         returnCode = sim.simxSetJointTargetVelocity(clientID,Left_Joint,leftv,sim.simx_opmode_oneshot);
-#         returnCode = sim.simxSetJointTargetVelocity(clientID,Right_Joint,rightv,sim.simx_opmode_oneshot);
-### --- End Example Code --- ###
