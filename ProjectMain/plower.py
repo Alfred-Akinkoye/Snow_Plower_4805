@@ -55,9 +55,12 @@ class Plower:
         self.api.sendMessage("Hello from Python! :)")
         #self.movementControl.setVelocity(2)
         
-        self.movementControl.move(1)
+        self.movementControl.setVelocity(0.25)
+
         while True:
-            pass
+            if (self.sensors.checkFrontVisionSensor()):
+                print("STOP")
+                self.movementControl.stop()
     
     def stop(self):
         print("Stopping...")
