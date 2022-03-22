@@ -39,7 +39,7 @@ class Plower:
     def __init__(self):
         self.api = API()
         self.isEast = True
-        
+
     def connectAPI(self):
         if (self.api.connect()):
             self.movementControl = MovementControl(self, self.api)
@@ -53,12 +53,13 @@ class Plower:
         print("Plower Running...")
         # Send some data to CoppeliaSim in a non-blocking fashion:
         self.api.sendMessage("Hello from Python! :)")
-        #self.movementControl.setVelocity(2)
-        
-        self.movementControl.move(1)
+
+        self.movementControl.setVelocity(0.25)
         while True:
-            pass
-    
+            if(self.sensors.checkAllVisionSensors()):
+                self.movementControl.setVelocity(0)
+                self.stop()
+
     def stop(self):
         print("Stopping...")
         # stop the simulation
@@ -66,7 +67,7 @@ class Plower:
         print("Simulation Stopped")
         self.api.disconnect()
         print("Plower Disconnected")
-        
+
     # Plow Control Functions
     def unfoldPlow(self):
         self.api.setJointPosition(self.plowLeftJoint, math.pi/2)

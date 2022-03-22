@@ -3,14 +3,19 @@ class Sensors:
         self.plow = plow
         self.api = api
 
-        self.BackVisionSensor = VisionSensor('Back_IR')
-        self.FrontVisionSensor = VisionSensor('Front_IR')
-        self.LeftVisionSensor = VisionSensor('Lef_IR')
-        self.RightVisionSensor = VisionSensor('Right_IR')
-        self.visionSensors = [self.FrontSensor,self.LeftWheelSensor,self.RightWheelSensor,self.BackSensor]
+        #Vision Sensors
+        self.BackVisionSensor = VisionSensor(self.api, 'Back_IR')
+        self.FrontVisionSensor = VisionSensor(self.api, 'Front_IR')
+        self.LeftVisionSensor = VisionSensor(self.api, 'Left_IR')
+        self.RightVisionSensor = VisionSensor(self.api, 'Right_IR')
+        self.visionSensors = [self.FrontVisionSensor,self.LeftVisionSensor,self.RightVisionSensor,self.BackVisionSensor]
 
         # Register Proximity Sensors
-
+        # self.BackVisionSensor = VisionSensor(self.api, 'Back_IR')
+        # self.FrontVisionSensor = VisionSensor(self.api, 'Front_IR')
+        # self.LeftVisionSensor = VisionSensor(self.api, 'Lef_IR')
+        # self.RightVisionSensor = VisionSensor(self.api, 'Right_IR')
+        # self.proximitySensors = [self.FrontSensor,self.LeftWheelSensor,self.RightWheelSensor,self.BackSensor]
 
     def checkAllVisionSensors(self):
         for sensor in self.visionSensors:
@@ -19,19 +24,22 @@ class Sensors:
         return False
 
 class VisionSensor():
-    def __init__(self, objectHandle):
+    def __init__(self, api, objectHandle):
+        self.api = api
         self.object = self.api.getObject(objectHandle) #use the api to get the object from the handle
-    
-    def checkForLine(): # Returns a bool
+
+    def checkForLine(self): # Returns a bool
         [temp, detectionState, data] = self.api.readVisionSensor(self.object)
+        print(data[0][11])
         if data[0][11] < 0.3:
             return True
         return False
 
 class ProximitySensor():
-    def __init__(self, objectHandle):
-        pass
+    def __init__(self, api, objectHandle):
+        self.api = api
+        self.object = self.api.getObject(objectHandle) #use the api to get the object from the handle
 
-    def getDistance(): # Returns a float 
+    def getDistance(): # Returns a float
         pass
         return 0.0
