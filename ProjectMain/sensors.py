@@ -11,7 +11,7 @@ class Sensors:
 
         # Register Proximity Sensors
 
-
+    # Vision Sensor Methods
     def checkAllVisionSensors(self):
         for sensor in self.visionSensors:
             if (sensor.checkForLine()):
@@ -23,19 +23,30 @@ class Sensors:
             return True
         return False
 
+    def checkBlackVisionSensor(self):
+        if (self.FrontVisionSensor.checkForLine()):
+            return True
+        return False
+
+    # Proximity Sensor Methods
+    def objectAhead(self):
+        return False
+
+
+
 class VisionSensor():
     def __init__(self, api, objectHandle):
         self.api = api
         self.object = self.api.getObject(objectHandle) #use the api to get the object from the handle
     
     def checkForLine(self): # Returns a bool
-        [detectionState, auxPacket1, data] = self.api.readVisionSensor(self.object)
-        print(detectionState)
-        print(auxPacket1)
-        print(data)
+        [returnCode, detectionState, data] = self.api.readVisionSensor(self.object)
+        #print(detectionState)
+        #print(auxPacket1)
+        #print(data)
         if (data and len(data) > 0 and len(data[0]) > 11):
-            print(f"Data: {data[0][11]}")
-            if data[0][11] < 0.3 and data[0][11] > 0:
+            if data[0][11] < 0.1 and data[0][11] > 0:
+                print(f"SENSOR TRIGGERED: {data[0][11]}")
                 return True
         return False
 
