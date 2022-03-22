@@ -3,24 +3,29 @@ class Sensors:
         self.plow = plow
         self.api = api
 
+        self.BackVisionSensor = VisionSensor('Back_IR')
+        self.FrontVisionSensor = VisionSensor('Front_IR')
+        self.LeftVisionSensor = VisionSensor('Lef_IR')
+        self.RightVisionSensor = VisionSensor('Right_IR')
+        self.visionSensors = [self.FrontSensor,self.LeftWheelSensor,self.RightWheelSensor,self.BackSensor]
 
-        self.frontVisionSensor = VisionSensor("frontSensor") # IDK what the actual handle is
-        #... register other sensors
-        # get vision example joint
-        #self.BackVisionSensor = self.api.getObject('BackSensor')
-        #self.FrontVisionSensor = self.api.getObject('FrontSensor')
-        ##self.LeftWheelSensor = self.api.getObject('LeftWheelSensor')
-        #self.RightWheelSensor = self.api.getObject('RightWheelSensor')
+        # Register Proximity Sensors
 
-        pass
+
+    def checkAllVisionSensors(self):
+        for sensor in self.visionSensors:
+            if (sensor.checkForLine()):
+                return True
+        return False
 
 class VisionSensor():
     def __init__(self, objectHandle):
-        self.object = None #use the api to get the object from the handle
-        pass
+        self.object = self.api.getObject(objectHandle) #use the api to get the object from the handle
     
     def checkForLine(): # Returns a bool
-        pass
+        [temp, detectionState, data] = self.api.readVisionSensor(self.object)
+        if data[0][11] < 0.3:
+            return True
         return False
 
 class ProximitySensor():
@@ -30,29 +35,3 @@ class ProximitySensor():
     def getDistance(): # Returns a float 
         pass
         return 0.0
-
-
-# Sensor Code moved from Main
-# vision = [self.BackSensor,self.FrontSensor,self.LeftWheelSensor,self.RightWheelSensor]
-
-#     nominalv = 6
-#     self.setMove(nominalv)
-#     try:
-#         print("Running Sensor Loop")
-#         while (True):
-#             pass
-#             sensor_values = [0,0,0,0]
-#             for i in range(0,4):
-#                 detectionState = self.api.readVisionSensor(vision[i]);
-#                 #print(detectionState)
-#                 if (detectionState[0] < 0):
-#                     if detectionState[2][11] < 0.3:
-#                         sensor_values[i] = 1
-#                     else:
-#                         sensor_values[i] = 0
-
-#             rightv = nominalv
-#             leftv  = nominalv
-#             if(sensor_values[0] == 1 or sensor_values[1] == 1 or sensor_values[2] == 1 or sensor_values[3] == 1):
-#                 leftv = leftv*-1
-#                 rightv = rightv*-1
