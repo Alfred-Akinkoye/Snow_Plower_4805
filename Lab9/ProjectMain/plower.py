@@ -58,7 +58,8 @@ class Plower:
         while True:
             if(self.sensors.checkAllVisionSensors()):
                 self.movementControl.setVelocity(0)
-                self.stop()
+                break
+        self.stop()
 
     def stop(self):
         print("Stopping...")
