@@ -77,9 +77,6 @@ class API:
     def getObjectOrientation(self, handle):
         return sim.simxGetObjectOrientation(self.clientID, handle, -1, sim.simx_opmode_blocking) 
 
-    def getObjectQuaternionOrientation(self, handle):
-        return sim.simxGetObjectQuaternion(self.clientID, handle, -1, sim.simx_opmode_blocking)    
-
     # Movement
     def setJointVelocity(self, joint, velocity):
         wheelCircumfrence = math.pi * 0.12705 # Robot Wheels are 0.12705m in diameter
