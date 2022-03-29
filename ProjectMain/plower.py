@@ -58,6 +58,10 @@ class Plower:
         print("Plower Running...")
         # Send some data to CoppeliaSim in a non-blocking fashion:
         self.api.sendMessage("Hello from Python! :)")
+        self.unfoldPlow()
+
+        # Go forward
+        self.movementControl.setVelocity(0.5)
         #self.movementControl.setVelocity(2)
         
         #self.movementControl.setVelocity(0.25)
@@ -66,9 +70,13 @@ class Plower:
             #if (self.sensors.checkFrontVisionSensor()):
                 #print("STOP")
                 #self.movementControl.stop()
+        while True:
+            self.sensors.checkAllProximitySensors() #Deji - Check proximity sensors
+                #break
+        self.stop()
 
-        algorithm = RandomAlgorithm(self)
-        algorithm.run()
+        #algorithm = RandomAlgorithm(self)
+        #algorithm.run()
     
     def stop(self):
         print("Stopping...")

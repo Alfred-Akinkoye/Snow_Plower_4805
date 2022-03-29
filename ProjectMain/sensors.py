@@ -10,6 +10,24 @@ class Sensors:
         self.visionSensors = [self.FrontVisionSensor,self.LeftVisionSensor,self.RightVisionSensor,self.BackVisionSensor]
 
         # Register Proximity Sensors
+        #Proximity Sensors
+        self.FrontProx = ProximitySensor(self.api, 'F_Proximity')
+        self.RightProx = ProximitySensor(self.api, 'R_Proximity')
+        #self.FrontLeftProx = ProximitySensor(self.api, 'FL_Proximity')
+        #self.FrontRightProx = ProximitySensor(self.api, 'FR_Proximity')
+        #self.FrontFLProx = ProximitySensor(self.api, 'FFL_Proximity')
+        #self.FrontFRProx = ProximitySensor(self.api, 'FFR_Proximity')
+
+        #self.BackProx = ProximitySensor(self.api, 'B_Proximity')
+        #self.BackLeftProx = ProximitySensor(self.api, 'BL_Proximity')
+        #self.BackRightProx = ProximitySensor(self.api, 'BR_Proximity')
+
+        #self.LeftProx = ProximitySensor(self.api, 'L_Proximity')
+        #self.RightProx = ProximitySensor(self.api, 'R_Proximity')
+        #self.LeftFrontProx = ProximitySensor(self.api, 'LFL_Proximity')
+        #self.RigtFrontProx = ProximitySensor(self.api, 'RFR_Proximity')
+
+        self.proximitySensors = [self.FrontProx, self.RightProx]
 
     # Vision Sensor Methods
     def checkAllVisionSensors(self):
@@ -30,6 +48,12 @@ class Sensors:
 
     # Proximity Sensor Methods
     def objectAhead(self):
+        return False
+
+    def checkAllProximitySensors(self):
+        for sensor in self.proximitySensors:
+            if (sensor.getDistance()):
+                return True
         return False
 
 
@@ -53,8 +77,21 @@ class VisionSensor():
 class ProximitySensor():
     def __init__(self, api, objectHandle):
         self.api = api
-        pass
+        self.objectHandle = objectHandle
+        self.object = self.api.getObject(objectHandle) #use the api to get the object from the handle
 
-    def getDistance(self): # Returns a float 
-        pass
-        return 0.0
+    def getDistance(self): # Returns a float
+        returnedData = self.api.readProximitySensor(self.object)
+        
+        [returnCode, 
+        detectionState, 
+        detectedPoint, 
+        detectedObjectHandle, 
+        detectedSurfaceNormalVector] = returnedData
+
+        print(f"{self.objectHandle}: {returnedData}")
+        #print("Det point" + detectedPoint)
+        #print(detectionState)
+        #if detectionState:
+        #    return True
+        #return False
