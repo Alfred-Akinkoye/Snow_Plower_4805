@@ -9,20 +9,21 @@ class MovementControl():
         self.LeftWheel = Wheel(api, 'LeftJoint')
         self.RightWheel = Wheel(api, 'RightJoint')
         self.plowerOb = self.api.getObject("Plower")
-        
 
+    # Basic Movement Function
     def setVelocity(self, speed):
         self.LeftWheel.setVelocity(speed)
         self.RightWheel.setVelocity(speed)
+
+    def rotate(self, speed):
+        self.LeftWheel.setVelocity(speed)
+        self.RightWheel.setVelocity(-speed)
 
     def stop(self):
         self.LeftWheel.stop()
         self.RightWheel.stop()
 
-    def rotate(self, speed):
-        self.LeftWheel.setVelocity(speed)
-        self.RightWheel.setVelocity(-speed)
-    
+    # Timed Movements
     def timedRotate(self, speed, duration):
         self.rotate(speed)
         time.sleep(duration)
@@ -33,18 +34,66 @@ class MovementControl():
         time.sleep(duration)
         self.stop()
 
-    def getObjectPosition(self):
-        result = self.api.getObjectPosition(self.plowerOb)
-        return result[1]
+    # Rotational Methods
+    def rotateRadians(self, radians):
+        # Rotate a set number of radians
+        current = self.getPlowerOrientation()
+        target = current + radians
+        print("DOING Rotation: radians, From, To")
+        print(radians)
+        print(current)
+        print(target)
 
-    def getObjectOrientaion(self):
-        result = self.api.getObjectOrientation(self.plowerOb)
-        return result[1][2]
-    
-    def rotateDegrees(self, degrees):
-        # Rotate a set number of degrees (Either ***by checking orientation*** or by time? or by wheel encoding)
-        pass
-    
+        # if new angle greater than pi, readjust
+        if (target > math.pi):
+            target = -(math.pi - (target-math.pi))
+        elif (target < -math.pi):
+            target = math.pi+(target+math.pi)
+
+        #rotate based on direction given
+        if (radians > 0):
+            self.rotate(0.25)
+        else:
+            self.rotate(-0.25)
+
+        #rotate until target equals point
+        while (abs(target - self.getPlowerOrientation()) > 0.5):
+            print(f"Rotation Difference: {abs(target - self.getPlowerOrientation())}")
+
+        if (radians > 0):
+            self.rotate(0.05)
+        else:
+            self.rotate(-0.05)
+
+        while (abs(target - self.getPlowerOrientation()) > 0.025):
+            print(f"Rotation Difference: {abs(target - self.getPlowerOrientation())}")
+
+        self.stop()
+        print("DONE ROTATION")
+
+
+    def rotateTo(self, orientation, direction):
+        """
+        Rotate plower into specific cardinal direction
+        Args:
+        orientation = enter N,E,S, or W for direction to turn to
+        direction = enter True for CW rotation, false for CCW
+        """
+        od = {"N":0, "E": -0.7068747282028198, "S":1, "W":0.7075492739677429}
+        target = od[orientation]
+
+        if (direction):
+            self.rotate(-0.08)
+        else:
+            self.rotate(0.08)
+
+        difference = abs(target - self.getPlowerOrientation())
+        while(difference> 0.008):
+            #print(difference)
+            difference = abs(target - self.getPlowerOrientation())
+        print("DONE ROTATION")
+        self.stop()
+
     def forwardRotation(self, degrees):
         # Rotate while moving forward (A set distance) in order to keep the snow in the plow
         pass
@@ -78,27 +127,26 @@ class MovementControl():
             print("AXIS ERROR")
             raise Exception("AXIS ERROR")
 
-
     def move(self, distance):
         origin = self.getPlowerPosition()
         axis = self.getPlowerAxis()
         target = self.getTargetPosition(origin, distance, axis)
-        print(origin)
+        print("DOING MOVE: Axis, From, To")
         print(axis)
+        print(origin)
         print(target)
-        self.setVelocity(0.5)
-        while self.getPlowerPositionDifference(target, axis) > 0.1: pass
-        self.setVelocity(0.05)
-        while self.getPlowerPositionDifference(target, axis) > 0.01: pass
-        self.setVelocity(0.005)
-        while self.getPlowerPositionDifference(target, axis) > 0.001: pass
+        # We are sometimes missing
+        self.setVelocity(0.25)
+        while self.getPlowerPositionDifference(target, axis) > 0.1:
+            print(f"Position Difference: {self.getPlowerPositionDifference(target, axis)}")
         self.setVelocity(0)
-        print("DONE")
+        self.setVelocity(0)
+        print("DONE MOVE")
 
     # Positional Methods
     def getPlowerPosition(self):
-        return self.getObjectPosition()
-    
+        return self.api.getObjectPosition(self.plowerOb)[1]
+
     def getPlowerPositionDifference(self, origin, axis):
         currentPosition = self.getPlowerPosition()
         if (axis == "x"):
@@ -108,9 +156,9 @@ class MovementControl():
         else:
             print("BAD AXIS")
             raise Exception("BAD AXIS")
-    
+
     def getTargetPosition(self, origin, distance, axis):
-        target = origin
+        target = origin[:]
         if (axis == "x"):
             target[0] = target[0] + distance
         elif (axis == "y"):
@@ -120,13 +168,13 @@ class MovementControl():
             raise Exception("BAD AXIS")
         return target
 
-    
-    
+
+
 class Wheel():
     def __init__(self, api, handle):
         self.api = api
         self.obj = self.api.getObject(handle) # Use API to get object handle
-        
+
 
     def setVelocity(self, speed):
         # We may need to convert "speed" into rads/s? based on wheel size?
@@ -134,4 +182,3 @@ class Wheel():
 
     def stop(self):
         self.api.setJointVelocity(self.obj, 0)
-

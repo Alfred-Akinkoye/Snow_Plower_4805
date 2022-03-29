@@ -39,11 +39,15 @@ class Plower:
     def __init__(self):
         self.api = API()
         self.isEast = True
-
+        self.outBoundState = False    #true if inbound, false if out of bounds
     def connectAPI(self):
         if (self.api.connect()):
             self.movementControl = MovementControl(self, self.api)
             self.sensors = Sensors(self, self.api)
+
+            self.leftPlowJoint = self.api.getObject("LeftPlowJoint")
+            self.rightPlowJoint = self.api.getObject("RightPlowJoint")
+
             return True
         return False
 
@@ -53,13 +57,40 @@ class Plower:
         print("Plower Running...")
         # Send some data to CoppeliaSim in a non-blocking fashion:
         self.api.sendMessage("Hello from Python! :)")
+        print(self.movementControl.getPlowerOrientation())
+        self.unfoldPlow()
 
-        self.movementControl.setVelocity(0.25)
+        self.movementControl.setVelocity(0.55)
         while True:
             if(self.sensors.checkAllVisionSensors()):
-                self.movementControl.setVelocity(0)
-                break
+                time.sleep(2)
+                print("sensors flared up")
+                self.movementControl.stop()
+                self.edgeControl()
+                self.movementControl.setVelocity(0.55)
         self.stop()
+
+    def edgeControl(self):
+        print("In edge control")
+        self.outBoundState = not self.outBoundState
+        print(self.outBoundState)
+        if(self.outBoundState):
+            self.foldPlow()
+            if(self.isEast):
+                #self.movementControl.move(0.1)
+                self.movementControl.rotateTo("N",False)
+                self.movementControl.move(1)
+                self.movementControl.rotateTo("W",False)
+            else:
+                #self.movementControl.move(0.1)
+                self.movementControl.rotateTo("N",True)
+                self.movementControl.move(1)
+                self.movementControl.rotateTo("E",True)
+            self.unfoldPlow()
+            self.isEast = not self.isEast
+        print(self.movementControl.getPlowerOrientation())
+
+
 
     def stop(self):
         print("Stopping...")
@@ -71,14 +102,14 @@ class Plower:
 
     # Plow Control Functions
     def unfoldPlow(self):
-        self.api.setJointPosition(self.plowLeftJoint, math.pi/2)
-        self.api.setJointPosition(self.plowRightJoint, -math.pi/2)
-        time.sleep(2)
+        self.api.setJointPosition(self.leftPlowJoint, math.pi/2)
+        self.api.setJointPosition(self.rightPlowJoint, -math.pi/2)
+        time.sleep(1)
 
     def foldPlow(self):
-        self.api.setJointPosition(self.plowLeftJoint, 0)
-        self.api.setJointPosition(self.plowRightJoint, 0)
-        time.sleep(2)
+        self.api.setJointPosition(self.leftPlowJoint, 0)
+        self.api.setJointPosition(self.rightPlowJoint, 0)
+        time.sleep(1)
 
 # This is the Main Script
 if __name__ == '__main__':
