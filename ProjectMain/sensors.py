@@ -52,8 +52,8 @@ class Sensors:
     def objectAhead(self):
         return False
 
-    # Check all vision sensors at once. In the event we need to check all the 
-    # vision sensors at once. Unlikely that we will need it though. 
+    # Check all vision sensors at once. In the event we need to check all the
+    # vision sensors at once. Unlikely that we will need it though.
     def checkAllProximitySensors(self):
         for sensor in self.proximitySensors:
             if (sensor.getDistance()):
@@ -66,12 +66,9 @@ class VisionSensor():
     def __init__(self, api, objectHandle):
         self.api = api
         self.object = self.api.getObject(objectHandle) #use the api to get the object from the handle
-    
+
     def checkForLine(self): # Returns a bool
         [returnCode, detectionState, data] = self.api.readVisionSensor(self.object)
-        #print(detectionState)
-        #print(auxPacket1)
-        #print(data)
         if (data and len(data) > 0 and len(data[0]) > 11):
             if data[0][11] < 0.1 and data[0][11] > 0:
                 print(f"SENSOR TRIGGERED: {data[0][11]}")
@@ -86,14 +83,14 @@ class ProximitySensor():
 
     def getDistance(self): # Returns a float
         returnedData = self.api.readProximitySensor(self.object)
-        
-        [returnCode, 
-        detectionState, 
-        detectedPoint, 
-        detectedObjectHandle, 
+
+        [returnCode,
+        detectionState,
+        detectedPoint,
+        detectedObjectHandle,
         detectedSurfaceNormalVector] = returnedData
         if detectionState == True
             return detectedPoint[2]
-        
+
         # If nothing is detected return an infinite distance
         return math.inf
