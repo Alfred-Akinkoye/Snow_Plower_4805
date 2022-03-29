@@ -1,3 +1,5 @@
+import math
+
 class Sensors:
     def __init__(self, plow, api):
         self.plow = plow
@@ -90,5 +92,8 @@ class ProximitySensor():
         detectedPoint, 
         detectedObjectHandle, 
         detectedSurfaceNormalVector] = returnedData
-
-        print(f"{self.objectHandle}: {returnedData}")
+        if detectionState == True
+            return detectedPoint[2]
+        
+        # If nothing is detected return an infinite distance
+        return math.inf
