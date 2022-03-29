@@ -71,8 +71,9 @@ class Plower:
                 #print("STOP")
                 #self.movementControl.stop()
         while True:
-            self.sensors.checkAllProximitySensors() #Deji - Check proximity sensors
-                #break
+            #self.sensors.checkAllProximitySensors() # Check proximity sensors
+            self.sensors.F_Proximity.getDistance() # Check just the front sensor. Testing purposes
+            #break
         self.stop()
 
         #algorithm = RandomAlgorithm(self)
