@@ -92,7 +92,7 @@ class MovementControl():
         if (direction == "S"):
                difference = abs(target - abs(self.getPlowerOrientation()))
 
-        while(difference > 0.008):
+        while(difference > 0.01):
             #print(difference)
             if (direction == "S"):
                 difference = abs(target - abs(self.getPlowerOrientation()))
