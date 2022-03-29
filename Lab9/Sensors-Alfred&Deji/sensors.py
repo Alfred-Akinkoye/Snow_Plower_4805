@@ -72,6 +72,34 @@ class API:
     def readVisionSensor(self,name):
         return sim.simxReadVisionSensor(self.clientID,name,sim.simx_opmode_blocking)
 
+class ProximitySensor:
+    def __init__(self):
+        self.api = API()
+
+    def connectAPI(self):
+        return self.api.connect()
+
+    def run(self):
+        # MODIFY CODE HERE
+        print("Car reading...")
+        # Send some data to CoppeliaSim in a non-blocking fashion:
+        self.api.sendMessage("Hello from Python! :)")
+
+        self.LeftJoint = self.api.getObject('LeftJoint')
+        self.RightJoint=self.api.getObject('RightJoint')
+
+        vision = []
+
+        nominalv = 2
+        self.api.setJointVelocity(self.LeftJoint,nominalv)
+        self.api.setJointVelocity(self.RightJoint,nominalv)
+
+        self.stop()
+
+    def stop(self):
+        self.api.disconnect()
+        print("Stoped Sensors ...")
+
 class VisionSensor:
     def __init__(self):
         self.api = API()
@@ -91,7 +119,7 @@ class VisionSensor:
          # Get vision example joint
         self.BackSensor = self.api.getObject('Back_IR')
         self.FrontSensor = self.api.getObject('Front_IR')
-        self.LeftWheelSensor = self.api.getObject('Lef_IR')
+        self.LeftWheelSensor = self.api.getObject('Left_IR')
         self.RightWheelSensor = self.api.getObject('Right_IR')
         vision = [self.FrontSensor,self.LeftWheelSensor,self.RightWheelSensor,self.BackSensor]
 

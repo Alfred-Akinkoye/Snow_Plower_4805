@@ -29,7 +29,6 @@ except:
 from api import API
 from movementControl import MovementControl
 from sensors import Sensors
-from randomAlgorithm import RandomAlgorithm
 
 # Addition imports
 import time
@@ -45,10 +44,6 @@ class Plower:
         if (self.api.connect()):
             self.movementControl = MovementControl(self, self.api)
             self.sensors = Sensors(self, self.api)
-
-            self.leftPlowJoint = self.api.getObject("LeftPlowJoint")
-            self.rightPlowJoint = self.api.getObject("RightPlowJoint")
-
             return True
         return False
 
@@ -60,15 +55,9 @@ class Plower:
         self.api.sendMessage("Hello from Python! :)")
         #self.movementControl.setVelocity(2)
         
-        #self.movementControl.setVelocity(0.25)
-
-        #while True:
-            #if (self.sensors.checkFrontVisionSensor()):
-                #print("STOP")
-                #self.movementControl.stop()
-
-        algorithm = RandomAlgorithm(self)
-        algorithm.run()
+        self.movementControl.move(1)
+        while True:
+            pass
     
     def stop(self):
         print("Stopping...")
@@ -80,14 +69,14 @@ class Plower:
         
     # Plow Control Functions
     def unfoldPlow(self):
-        self.api.setJointPosition(self.leftPlowJoint, math.pi/2)
-        self.api.setJointPosition(self.rightPlowJoint, -math.pi/2)
-        time.sleep(1)
+        self.api.setJointPosition(self.plowLeftJoint, math.pi/2)
+        self.api.setJointPosition(self.plowRightJoint, -math.pi/2)
+        time.sleep(2)
 
     def foldPlow(self):
-        self.api.setJointPosition(self.leftPlowJoint, 0)
-        self.api.setJointPosition(self.rightPlowJoint, 0)
-        time.sleep(1)
+        self.api.setJointPosition(self.plowLeftJoint, 0)
+        self.api.setJointPosition(self.plowRightJoint, 0)
+        time.sleep(2)
 
 # This is the Main Script
 if __name__ == '__main__':
@@ -97,9 +86,9 @@ if __name__ == '__main__':
         try:
             plower.run()
         except KeyboardInterrupt:
-            pass
+            plower.stop()
         except Exception as e:
+            plower.stop()
             raise e
-        plower.stop()
     # End Program Execution
     print("Exiting")
