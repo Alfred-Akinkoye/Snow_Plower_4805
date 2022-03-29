@@ -30,7 +30,7 @@ class VisionSensor():
 
     def checkForLine(self): # Returns a bool
         [temp, detectionState, data] = self.api.readVisionSensor(self.object)
-        print(data[0][11])
+        # print(data[0][11])
         if data[0][11] < 0.3:
             return True
         return False
