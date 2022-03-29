@@ -98,6 +98,53 @@ class MovementControl():
         # Rotate while moving forward (A set distance) in order to keep the snow in the plow
         pass
 
+    def rotate_Amount(self, radians):
+        # Rotate a set number of degrees (Either ***by checking orientation*** or by time? or by wheel encoding)
+        current = self.getObjectOrientaion()
+        target = current + radians
+        print(target)
+        
+        #if new angle greater than pi, readjust
+        if (target > math.pi):
+            target = -(math.pi - (target- math.pi))
+        elif (target < -math.pi):
+            target = math.pi+(target+math.pi)
+        
+        print(target)
+        #rotate based on direction given
+        if (radians >0):
+            self.rotate(1)
+        else:
+            self.rotate(-1)
+
+        #rotate until target equals point
+        difference = abs(target - self.getObjectOrientaion())
+        while(difference> 0.025):
+            #print(difference)
+            difference = abs(target - self.getObjectOrientaion())
+        self.stop()
+
+    def rotate_Facing(self,orientation,direction):
+        """
+        Rotate plower into specific cardinal direction
+        Args:
+        orientation = enter N,E,S, or W for direction to turn to
+        direction = enter True for CW rotation, false for CCW
+        """
+        od = {"N":0, "E": -math.pi/2, "S":math.pi, "W":math.pi/2}
+        target = od[orientation]
+
+        if (direction >0):
+            self.rotate(-1)
+        else:
+            self.rotate(1)
+
+        difference = abs(target - self.getObjectOrientaion())
+        while(difference> 0.025):
+            #print(difference)
+            difference = abs(target - self.getObjectOrientaion())
+        self.stop()
+
     def getPlowerOrientation(self):
         return self.api.getObjectQuaternionOrientation(self.plowerOb)[1][2]
 
