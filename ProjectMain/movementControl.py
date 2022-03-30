@@ -118,25 +118,27 @@ class MovementControl():
             self.rotate(0.3)
 
 
-        difference = abs(target - self.getPlowerOrientation()) % math.pi
+        difference = abs(target - self.getPlowerOrientation())
         if (direction == "S"):
-               difference = abs(target - abs(self.getPlowerOrientation()))
+               difference = abs(abs(target) - abs(self.getPlowerOrientation()))
 
+        print(difference)
 
-        while(difference > 0.1): # change to 0.1 from 0.01
+        while(difference > 0.05): # change to 0.1 from 0.01
 
             if (direction == "S"):
                 difference = abs(target - abs(self.getPlowerOrientation()))
             else:
-                difference = abs(target - self.getPlowerOrientation()) % math.pi
+                difference = abs(abs(target) - self.getPlowerOrientation())
 
             # When difference is less than 15 degrees (math.pi/12) slow the wheels
             # from 0.3 to 0.08
-            if (difference < math.pi/12):
+            if (difference < math.pi/9):
                 if (direction):
                     self.rotate(-0.08)
                 else:
                     self.rotate(0.08)
+            print(difference)
 
         print("DONE ROTATION")
         self.stop()
@@ -176,7 +178,7 @@ class MovementControl():
 
     def getPlowerOrientation(self):
         returnCode, ori = self.api.getObjectOrientation(self.plowerOb)
-        print(ori)
+        #print(ori)
         return ori[2]
 
     def getPlowerDirection(self):
@@ -216,7 +218,8 @@ class MovementControl():
         # We are sometimes missing
         self.setVelocity(0.25)
         while self.getPlowerPositionDifference(target, axis) > 0.1:
-            print(f"Position Difference: {self.getPlowerPositionDifference(target, axis)}")
+            #print(f"Position Difference: {self.getPlowerPositionDifference(target, axis)}")
+            continue
         self.stop()
         print("DONE MOVE")
 

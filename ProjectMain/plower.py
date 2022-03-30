@@ -39,6 +39,8 @@ class Plower:
     def __init__(self):
         self.api = API()
         self.isEast = True
+        self.isNorth = True
+        self.hMove = True
         self.outBoundState = False    #true if inbound, false if out of bounds
     def connectAPI(self):
         if (self.api.connect()):
@@ -57,39 +59,22 @@ class Plower:
         print("Plower Running...")
         # Send some data to CoppeliaSim in a non-blocking fashion:
         self.api.sendMessage("Hello from Python! :)")
-        print(self.movementControl.getPlowerOrientation())
-        self.unfoldPlow()
-
-        self.movementControl.setVelocity(0.55)
-
-        # Paragraph of code below is for testing purposes. Comment out or delete
-        # when finished
-        self.movementControl.rotateTo("N",True)
-        self.movementControl.move(1)
-        self.movementControl.rotateTo("W",False)
-        self.movementControl.move(1)
-        # self.movementControl.rotateTo("S",False)
-        # self.movementControl.move(1)
-        # self.movementControl.rotateTo("E",False)
-        # self.movementControl.move(1)
-        # self.movementControl.rotateTo("N",False)
+        #Inital start code
         # self.movementControl.move(1)
         # self.movementControl.rotateTo("E",True)
-        # self.movementControl.move(1)
-        # self.movementControl.rotateTo("S",True)
-        # self.movementControl.move(1)
-        # self.movementControl.rotateTo("W",True)
-        # self.movementControl.move(1)
-        # self.movementControl.rotateTo("N",True)
-
+        # self.movementControl.getPlowerOrientation()
+        self.unfoldPlow()
+        self.movementControl.setVelocity(0.55)
+        print(self.movementControl.getPlowerPosition())
         while True:
-            #self.sensors.F_Proximity.getDistance()
-            if(self.sensors.checkAllVisionSensors()):
-                time.sleep(2)
-                print("sensors flared up")
-                self.movementControl.stop()
-                self.edgeControl()
-                self.movementControl.setVelocity(0.55)
+             if (self.sensors.checkFrontProximitySensors()):
+                 self.objectAvoidance()
+             if(self.sensors.checkFrontVisionSensor()):
+                 time.sleep(2)
+                 print("sensors flared up")
+                 self.movementControl.stop()
+                 self.edgeControl()
+                 self.movementControl.setVelocity(0.55)
         self.stop()
 
     def edgeControl(self):
@@ -110,7 +95,32 @@ class Plower:
                 self.movementControl.rotateTo("E",True)
             self.unfoldPlow()
             self.isEast = not self.isEast
-        print(self.movementControl.getPlowerOrientation())
+        #print(self.movementControl.getPlowerOrientation())
+    
+    def objectAvoidance(self):
+        self.movementControl.setVelocity(0)
+        self.movementControl.rotateTo("S",self.isEast)
+        if(self.isEast):
+            direct = "Left"
+            facing = "E"
+        else:
+            direct = "Right"
+            facing = "W"
+        origin = self.movementControl.getPlowerPosition()
+        self.movementControl.setVelocity(0.55)
+        
+        while(self.sensors.checkProxyArray(direct)):
+            continue
+        self.movementControl.setVelocity(0)
+
+        self.movementControl.rotateTo(facing, not self.isEast)
+        self.movementControl.setVelocity(0.55)
+        while(self.sensors.checkProxyArray(direct)):
+            continue
+        self.movementControl.setVelocity(0)
+
+        self.movementControl.rotateTo("N", not self.isEast)
+        self.movementControl.move(self.movementControl.getPlowerPositionDifference(origin,"y"))
 
 
 
