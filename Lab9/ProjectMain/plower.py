@@ -62,7 +62,12 @@ class Plower:
 
         self.movementControl.setVelocity(0.55)
         while True:
-            if(self.sensors.checkAllVisionSensors()):
+            if(self.sensors.checkAllProximitySensors()):
+                self.movementControl.stop()
+                time.sleep(1.5)
+                self.movementControl.rotateTo("S",True)
+                self.movementControl.move(1)
+            if(self.sensors.checkVisionSensors()):
                 time.sleep(2)
                 print("sensors flared up")
                 self.movementControl.stop()

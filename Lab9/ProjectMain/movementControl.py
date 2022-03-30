@@ -79,7 +79,7 @@ class MovementControl():
         orientation = enter N,E,S, or W for direction to turn to
         direction = enter True for CW rotation, false for CCW
         """
-        od = {"N":0, "E": -0.7068747282028198, "S":1, "W":0.7075492739677429}
+        od = {"N":0, "E": -0.7068747282028198, "S":0.9999760389328003, "W":0.7075492739677429}
         target = od[orientation]
 
         if (direction):
