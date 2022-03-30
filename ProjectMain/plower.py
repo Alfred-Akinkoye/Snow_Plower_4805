@@ -61,7 +61,29 @@ class Plower:
         self.unfoldPlow()
 
         self.movementControl.setVelocity(0.55)
+
+        # Paragraph of code below is for testing purposes. Comment out or delete
+        # when finished
+        self.movementControl.rotateTo("N",True)
+        self.movementControl.move(1)
+        self.movementControl.rotateTo("W",False)
+        self.movementControl.move(1)
+        # self.movementControl.rotateTo("S",False)
+        # self.movementControl.move(1)
+        # self.movementControl.rotateTo("E",False)
+        # self.movementControl.move(1)
+        # self.movementControl.rotateTo("N",False)
+        # self.movementControl.move(1)
+        # self.movementControl.rotateTo("E",True)
+        # self.movementControl.move(1)
+        # self.movementControl.rotateTo("S",True)
+        # self.movementControl.move(1)
+        # self.movementControl.rotateTo("W",True)
+        # self.movementControl.move(1)
+        # self.movementControl.rotateTo("N",True)
+
         while True:
+            #self.sensors.F_Proximity.getDistance()
             if(self.sensors.checkAllVisionSensors()):
                 time.sleep(2)
                 print("sensors flared up")
