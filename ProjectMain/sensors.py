@@ -5,11 +5,7 @@ class Sensors:
         self.plow = plow
         self.api = api
 
-        self.BackVisionSensor = VisionSensor(self.api, 'Back_IR')
         self.FrontVisionSensor = VisionSensor(self.api, 'Front_IR')
-        self.LeftVisionSensor = VisionSensor(self.api, 'Left_IR')
-        self.RightVisionSensor = VisionSensor(self.api, 'Right_IR')
-        self.visionSensors = [self.FrontVisionSensor,self.LeftVisionSensor,self.RightVisionSensor,self.BackVisionSensor]
 
         # Register Proximity Sensors
         # Proximity Sensors
@@ -36,18 +32,7 @@ class Sensors:
         #self.proximitySensors = [self.F_Proximity, self.R_Proximity, self.FL_Proximity, self.FR_Proximity, self.FFL_Proximity, self.FFR_Proximity, self.B_Proximity, self.BL_Proximity, self.BR_Proximity, self.L_Proximity, self.R_Proximity, self.LFL_Proximity, self.RRFR_Proximity]
 
     # Vision Sensor Methods
-    def checkAllVisionSensors(self):
-        for sensor in self.visionSensors:
-            if (sensor.checkForLine()):
-                return True
-        return False
-
-    def checkFrontVisionSensor(self):
-        if (self.FrontVisionSensor.checkForLine()):
-            return True
-        return False
-
-    def checkBlackVisionSensor(self):
+    def checkVisionSensors(self):
         if (self.FrontVisionSensor.checkForLine()):
             return True
         return False
@@ -60,7 +45,9 @@ class Sensors:
     # vision sensors at once. Unlikely that we will need it though.
     def checkAllProximitySensors(self):
         for sensor in self.proximitySensors:
-            if (sensor.getDistance()):
+            temp = sensor.getDistance()
+            print(temp)
+            if (temp<0.5):
                 return True
         return False
     def checkProxyArray(self,direction):
