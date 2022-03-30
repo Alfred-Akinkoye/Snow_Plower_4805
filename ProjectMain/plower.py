@@ -67,7 +67,7 @@ class Plower:
         self.movementControl.setVelocity(0.55)
         print(self.movementControl.getPlowerPosition())
         while True:
-             if (self.sensors.checkFrontProximitySensors()):
+             if (self.sensors.checkProxyArray("Front", 0.8)):
                  self.objectAvoidance()
              if(self.sensors.checkFrontVisionSensor()):
                  time.sleep(2)
@@ -109,13 +109,13 @@ class Plower:
         origin = self.movementControl.getPlowerPosition()
         self.movementControl.setVelocity(0.55)
         
-        while(self.sensors.checkProxyArray(direct)):
+        while(self.sensors.checkProxyArray(direct,1.1)):
             continue
         self.movementControl.setVelocity(0)
 
         self.movementControl.rotateTo(facing, not self.isEast)
         self.movementControl.setVelocity(0.55)
-        while(self.sensors.checkProxyArray(direct)):
+        while(self.sensors.checkProxyArray(direct,1.1)):
             continue
         self.movementControl.setVelocity(0)
 

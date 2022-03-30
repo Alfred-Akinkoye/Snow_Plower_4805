@@ -7,6 +7,7 @@ class Sensors:
 
         self.FrontVisionSensor = VisionSensor(self.api, 'Front_IR')
 
+
         # Register Proximity Sensors
         # Proximity Sensors
         self.F_Proximity = ProximitySensor(self.api, 'F_Proximity')
@@ -32,7 +33,7 @@ class Sensors:
         #self.proximitySensors = [self.F_Proximity, self.R_Proximity, self.FL_Proximity, self.FR_Proximity, self.FFL_Proximity, self.FFR_Proximity, self.B_Proximity, self.BL_Proximity, self.BR_Proximity, self.L_Proximity, self.R_Proximity, self.LFL_Proximity, self.RRFR_Proximity]
 
     # Vision Sensor Methods
-    def checkVisionSensors(self):
+    def checkFrontVisionSensor(self):
         if (self.FrontVisionSensor.checkForLine()):
             return True
         return False
@@ -50,17 +51,11 @@ class Sensors:
             if (temp<0.5):
                 return True
         return False
-    def checkProxyArray(self,direction):
+    def checkProxyArray(self,direction, distance):
         Directdict = {"Front":self.proximitySensorsFront,"Right":self.proximitySensorsRight,"Left":self.proximitySensorsLeft,"Back":self.proximitySensorsBack}
         array = Directdict[direction]
         for sensor in array:
-            if (sensor.getDistance() < 0.8):
-                return True
-        return False
-
-    def checkFrontProximitySensors(self):
-        for sensor in self.proximitySensorsFront:
-            if (sensor.getDistance() < 0.8):
+            if (sensor.getDistance() < distance):
                 return True
         return False
 

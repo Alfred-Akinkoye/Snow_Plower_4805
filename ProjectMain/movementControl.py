@@ -122,14 +122,14 @@ class MovementControl():
         if (direction == "S"):
                difference = abs(abs(target) - abs(self.getPlowerOrientation()))
 
-        print(difference)
+        #print(difference)
 
         while(difference > 0.05): # change to 0.1 from 0.01
 
             if (direction == "S"):
                 difference = abs(target - abs(self.getPlowerOrientation()))
             else:
-                difference = abs(abs(target) - self.getPlowerOrientation())
+                difference = abs(target - self.getPlowerOrientation())
 
             # When difference is less than 15 degrees (math.pi/12) slow the wheels
             # from 0.3 to 0.08
@@ -138,7 +138,7 @@ class MovementControl():
                     self.rotate(-0.08)
                 else:
                     self.rotate(0.08)
-            print(difference)
+            #print(difference)
 
         print("DONE ROTATION")
         self.stop()
