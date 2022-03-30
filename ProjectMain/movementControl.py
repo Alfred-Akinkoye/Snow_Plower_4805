@@ -71,6 +71,35 @@ class MovementControl():
         self.stop()
         print("DONE ROTATION")
 
+    # def rotateTo(self, orientation, direction):
+    #     """
+    #     Rotate plower into specific cardinal direction
+    #     Args:
+    #     orientation = enter N,E,S, or W for direction to turn to
+    #     direction = enter True for CW rotation, false for CCW
+    #     """
+    #     od = {"N":0, "E": -math.pi/2, "S": math.pi, "W": math.pi/2}
+    #     target = od[orientation]
+
+    #     if (direction):
+    #         self.rotate(-0.08)
+    #     else:
+    #         self.rotate(0.08)
+
+        
+
+    #     difference = abs(target - self.getPlowerOrientation()) % math.pi
+    #     if (direction == "S"):
+    #            difference = abs(target - abs(self.getPlowerOrientation()))
+
+    #     while(difference > 0.01):
+    #         #print(difference)
+    #         if (direction == "S"):
+    #             difference = abs(target - abs(self.getPlowerOrientation()))
+    #         else:
+    #             difference = abs(target - self.getPlowerOrientation()) % math.pi
+    #     print("DONE ROTATION")
+    #     self.stop()
 
     def rotateTo(self, orientation, direction):
         """
@@ -79,27 +108,76 @@ class MovementControl():
         orientation = enter N,E,S, or W for direction to turn to
         direction = enter True for CW rotation, false for CCW
         """
-        od = {"N":0, "E": -0.7068747282028198, "S":1, "W":0.7075492739677429}
+        od = {"N":0, "E": -math.pi/2, "S": math.pi, "W": math.pi/2}
         target = od[orientation]
 
+        # Initially set rotation speed to 0.3 (previously 0.8)
         if (direction):
-            self.rotate(-0.08)
+            self.rotate(-0.3)
         else:
-            self.rotate(0.08)
+            self.rotate(0.3)
 
-        difference = abs(target - self.getPlowerOrientation())
-        while(difference> 0.008):
-            #print(difference)
-            difference = abs(target - self.getPlowerOrientation())
+
+        difference = abs(target - self.getPlowerOrientation()) % math.pi
+        if (direction == "S"):
+               difference = abs(target - abs(self.getPlowerOrientation()))
+
+
+        while(difference > 0.1): # change to 0.1 from 0.01
+
+            if (direction == "S"):
+                difference = abs(target - abs(self.getPlowerOrientation()))
+            else:
+                difference = abs(target - self.getPlowerOrientation()) % math.pi
+
+            # When difference is less than 15 degrees (math.pi/12) slow the wheels
+            # from 0.3 to 0.08
+            if (difference < math.pi/12):
+                if (direction):
+                    self.rotate(-0.08)
+                else:
+                    self.rotate(0.08)
+
         print("DONE ROTATION")
         self.stop()
+
+
+    def turnLeft(self):
+        curDir = self.getPlowerDirection()
+        newDir = ""
+        if curDir == "N":
+            newDir = "W"
+        elif curDir == "E":
+            newDir = "N"
+        elif curDir == "S":
+            newDir = "E"
+        elif curDir == "W":
+            newDir = "S"
+
+        self.rotateTo(newDir, False)
+
+    def turnRight(self):
+        curDir = self.getPlowerDirection()
+        newDir = ""
+        if curDir == "N":
+            newDir = "E"
+        elif curDir == "E":
+            newDir = "S"
+        elif curDir == "S":
+            newDir = "W"
+        elif curDir == "W":
+            newDir = "N"
+
+        self.rotateTo(newDir, True)
 
     def forwardRotation(self, degrees):
         # Rotate while moving forward (A set distance) in order to keep the snow in the plow
         pass
 
     def getPlowerOrientation(self):
-        return self.api.getObjectQuaternionOrientation(self.plowerOb)[1][2]
+        returnCode, ori = self.api.getObjectOrientation(self.plowerOb)
+        print(ori)
+        return ori[2]
 
     def getPlowerDirection(self):
         orientation = self.getPlowerOrientation()
@@ -131,16 +209,15 @@ class MovementControl():
         origin = self.getPlowerPosition()
         axis = self.getPlowerAxis()
         target = self.getTargetPosition(origin, distance, axis)
-        print("DOING MOVE: Axis, From, To")
-        print(axis)
-        print(origin)
-        print(target)
+        #print("DOING MOVE: Axis, From, To")
+        #print(axis)
+        #print(origin)
+        #print(target)
         # We are sometimes missing
         self.setVelocity(0.25)
         while self.getPlowerPositionDifference(target, axis) > 0.1:
             print(f"Position Difference: {self.getPlowerPositionDifference(target, axis)}")
-        self.setVelocity(0)
-        self.setVelocity(0)
+        self.stop()
         print("DONE MOVE")
 
     # Positional Methods
@@ -167,7 +244,6 @@ class MovementControl():
             print("BAD AXIS")
             raise Exception("BAD AXIS")
         return target
-
 
 
 class Wheel():

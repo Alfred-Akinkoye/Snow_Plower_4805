@@ -89,7 +89,7 @@ class ProximitySensor():
         detectedPoint,
         detectedObjectHandle,
         detectedSurfaceNormalVector] = returnedData
-        if detectionState == True
+        if detectionState == True:
             return detectedPoint[2]
 
         # If nothing is detected return an infinite distance
