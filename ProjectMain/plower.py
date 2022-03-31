@@ -69,6 +69,7 @@ class Plower:
         while True:
              if (self.sensors.checkProxyArray("Front", 0.8)):
                  self.objectAvoidance()
+                 self.movementControl.setVelocity(0.55)
              if(self.sensors.checkFrontVisionSensor()):
                  time.sleep(2)
                  print("sensors flared up")
@@ -98,31 +99,36 @@ class Plower:
         #print(self.movementControl.getPlowerOrientation())
     
     def objectAvoidance(self):
+        #need to make recursive to help with multiple obstacles
+        #need to make option to switch to overall N/S travel
+        
+        #setup
         self.movementControl.setVelocity(0)
-        self.movementControl.rotateTo("S",self.isEast)
         if(self.isEast):
             direct = "Left"
             facing = "E"
         else:
             direct = "Right"
             facing = "W"
+        #Go south until obstacle is cleared
+        self.movementControl.rotateTo("S",self.isEast)
         origin = self.movementControl.getPlowerPosition()
-        self.movementControl.setVelocity(0.55)
-        
-        while(self.sensors.checkProxyArray(direct,1.1)):
+        self.movementControl.setVelocity(0.4)
+        while(self.sensors.checkProxyArray(direct,1)):
             continue
         self.movementControl.setVelocity(0)
 
+        # continue in direction until obstacle is cleared
         self.movementControl.rotateTo(facing, not self.isEast)
         self.movementControl.setVelocity(0.55)
         while(self.sensors.checkProxyArray(direct,1.1)):
             continue
         self.movementControl.setVelocity(0)
 
+        #head north until at original poisition
         self.movementControl.rotateTo("N", not self.isEast)
         self.movementControl.move(self.movementControl.getPlowerPositionDifference(origin,"y"))
-
-
+        self.movementControl.rotateTo(facing, self.isEast)
 
     def stop(self):
         print("Stopping...")

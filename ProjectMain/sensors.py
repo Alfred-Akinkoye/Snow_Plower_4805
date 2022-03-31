@@ -27,8 +27,11 @@ class Sensors:
         self.R_Proximity = ProximitySensor(self.api, 'R_Proximity')
         self.LFL_Proximity = ProximitySensor(self.api, 'LFL_Proximity')
         self.RRFR_Proximity = ProximitySensor(self.api, 'RFR_Proximity')
-        self.proximitySensorsLeft = [self.FL_Proximity, self.FFL_Proximity,self.L_Proximity,self.LFL_Proximity, self.BL_Proximity]
-        self.proximitySensorsRight = [self.FR_Proximity,self.FFR_Proximity,self.BR_Proximity, self.R_Proximity, self.RRFR_Proximity]
+        self.RBR_Proximity = ProximitySensor(self.api, 'RBR_Proximity')
+        self.LBL_Proximity = ProximitySensor(self.api, 'LBL_Proximity')
+        
+        self.proximitySensorsLeft = [self.FL_Proximity, self.FFL_Proximity,self.L_Proximity,self.LFL_Proximity, self.BL_Proximity, self.LBL_Proximity]
+        self.proximitySensorsRight = [self.FR_Proximity,self.FFR_Proximity,self.BR_Proximity, self.R_Proximity, self.RRFR_Proximity, self.RBR_Proximity]
 
         #self.proximitySensors = [self.F_Proximity, self.R_Proximity, self.FL_Proximity, self.FR_Proximity, self.FFL_Proximity, self.FFR_Proximity, self.B_Proximity, self.BL_Proximity, self.BR_Proximity, self.L_Proximity, self.R_Proximity, self.LFL_Proximity, self.RRFR_Proximity]
 
