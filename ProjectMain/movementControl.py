@@ -68,18 +68,18 @@ class MovementControl():
         elif (target < -math.pi):
             target = math.pi+(target+math.pi)
 
-        direction = -1 if (radians < 0) else 1
+        directionSign = -1 if (radians < 0) else 1
+        direction = (radians < 0)
         # Initially set rotation speed to 0.3
         self.rotate(direction*0.3)
-        while(self.getPlowerOrientationDifference(target) > math.pi/9):
+        while(self.getPlowerOrientationDifference(target, direction) > math.pi/9):
             pass
         self.rotate(direction*0.08)
-        while(self.getPlowerOrientationDifference(target) > 0.08):
+        while(self.getPlowerOrientationDifference(target, direction) > 0.02):
             pass
 
-        print(f"Angle Difference After Rotation: {self.getPlowerOrientationDifference(target)})")
-
         self.stop()
+        print(f"Angle Difference After Rotation: {self.getPlowerOrientationDifference(target, direction)})")
 
     def rotateTo(self, orientation, direction):
         """
@@ -91,17 +91,25 @@ class MovementControl():
         od = {"N":0, "E": -math.pi/2, "S": math.pi, "W": math.pi/2}
         target = od[orientation]
 
-        direction = -1 if (direction) else 1
+        directionSign = -1 if (direction) else 1
         # Initially set rotation speed to 0.3
-        self.rotate(direction*0.3)
-        while(self.getPlowerOrientationDifference(target) > math.pi/9):
+        self.rotate(directionSign*0.3)
+        while(self.getPlowerOrientationDifference(target, direction) > math.pi/9): # math.pi/9 = 0.348
             pass
-        self.rotate(direction*0.08)
-        while(self.getPlowerOrientationDifference(target) > 0.08):
+        self.rotate(directionSign*0.06)
+        while(self.getPlowerOrientationDifference(target, direction) > 0.1):
             pass
 
+        while(abs(self.getPlowerOrientationDifference(target, direction)) > 0.01):
+            print(f"Angle Difference: {self.getPlowerOrientationDifference(target, direction)}")
+            if(self.getPlowerOrientationDifference(target, direction) > 0):
+                self.rotate(directionSign*0.01)
+            else:
+                self.rotate(-directionSign*0.01)
+        
+
         self.stop()
-        print(f"Angle Difference After Rotation: {self.getPlowerOrientationDifference(target)})")
+        print(f"Angle Difference After Rotation: {self.getPlowerOrientationDifference(target, direction)}")
 
     def turnLeft(self):
         '''
@@ -144,17 +152,17 @@ class MovementControl():
         origin = self.getPlowerPosition()
         axis = self.getPlowerAxis()
         target = self.getTargetPosition(origin, distance, axis)
-        print(f"Doing Move")
+        print(f"In Move")
 
-        print(origin)
-        print(target)
-        print(axis)
+        #print(origin)
+        #print(target)
+        #print(axis)
 
         self.setVelocity(0.5)
         while self.getPlowerPositionDifference(target, axis) > 0.1:
-            print(f"Position Difference: {self.getPlowerPositionDifference(target, axis)}")
+            #print(f"Position Difference: {self.getPlowerPositionDifference(target, axis)}")
             continue
-        print("Slowing Move")
+        #print("Slowing Move")
         self.setVelocity(0.05)
         while self.getPlowerPositionDifference(target, axis) > 0.05:
             continue
@@ -218,7 +226,7 @@ class MovementControl():
         '''
         return self.api.getObjectPosition(self.plowerOb)[1]
 
-    def getPlowerPositionDifference(self, origin, axis):
+    def getPlowerPositionDifference(self, target, axis):
         '''
         Takes a list of [x,y,z] coordinates origin, and 
         a current axis 'x' or 'y'
@@ -257,12 +265,20 @@ class MovementControl():
             raise Exception("BAD AXIS")
         return target
 
-    def getPlowerOrientationDifference(self, target):
+    def getPlowerOrientationDifference(self, target, direction):
         difference = 0
-        if (target == math.pi):
-            difference = abs(target - abs(self.getPlowerOrientation()))
+        if (direction):
+            #CW
+            if (target == math.pi):
+                difference = -abs(self.getPlowerOrientation()) - (-target)
+            else:
+                difference = self.getPlowerOrientation() - target
         else:
-            difference = abs(target - self.getPlowerOrientation())
+            #CCW
+            if (target == math.pi):
+                difference = target - abs(self.getPlowerOrientation())
+            else:
+                difference = target - self.getPlowerOrientation()
         return difference
 
 

@@ -6,6 +6,11 @@ class Sensors:
         self.api = api
 
         self.FrontVisionSensor = VisionSensor(self.api, 'Front_IR')
+        self.BackVisionSensor = VisionSensor(self.api, 'Back_IR')
+        self.LeftVisionSensor = VisionSensor(self.api, 'Left_IR')
+        self.RightVisionSensor = VisionSensor(self.api, 'Right_IR')
+
+        self.visionSensors = [self.FrontVisionSensor, self.BackVisionSensor, self.LeftVisionSensor, self.RightVisionSensor]
 
 
         # Register Proximity Sensors
@@ -15,7 +20,7 @@ class Sensors:
         self.FR_Proximity = ProximitySensor(self.api, 'FR_Proximity')
         self.FFL_Proximity = ProximitySensor(self.api, 'FFL_Proximity')
         self.FFR_Proximity = ProximitySensor(self.api, 'FFR_Proximity')
-        self.proximitySensorsFront = [self.F_Proximity, self.FL_Proximity, self.FR_Proximity, self.FFL_Proximity, self.FFR_Proximity]
+        self.proximitySensorsFront = [self.F_Proximity, self.FFL_Proximity, self.FFR_Proximity]
 
         self.B_Proximity = ProximitySensor(self.api, 'B_Proximity')
         self.BL_Proximity = ProximitySensor(self.api, 'BL_Proximity')
@@ -42,8 +47,8 @@ class Sensors:
         return False
 
     # Proximity Sensor Methods
-    def objectAhead(self):
-        return False
+    def objectAhead(self, distance):
+        return checkProxyArray("Front", distance)
 
     # Check all vision sensors at once. In the event we need to check all the
     # vision sensors at once. Unlikely that we will need it though.
@@ -54,6 +59,7 @@ class Sensors:
             if (temp<0.5):
                 return True
         return False
+
     def checkProxyArray(self,direction, distance):
         Directdict = {"Front":self.proximitySensorsFront,"Right":self.proximitySensorsRight,"Left":self.proximitySensorsLeft,"Back":self.proximitySensorsBack}
         array = Directdict[direction]

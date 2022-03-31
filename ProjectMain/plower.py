@@ -14,6 +14,7 @@ import sys
 import os
 sys.path.append(os.path.dirname(os.path.abspath(__file__))+"/PythonAPI")
 
+
 try:
     import sim
 except:
@@ -30,6 +31,8 @@ from api import API
 from movementControl import MovementControl
 from sensors import Sensors
 
+from randomAlgorithm import RandomAlgorithm
+
 # Addition imports
 import time
 import math
@@ -41,7 +44,9 @@ class Plower:
         self.isEast = True
         self.isNorth = True
         self.hMove = True
-        self.outBoundState = False    #true if inbound, false if out of bounds
+        self.outBoundState = False    #True if out of bounds, false if in bounds
+        self.onLine = False
+
     def connectAPI(self):
         if (self.api.connect()):
             self.movementControl = MovementControl(self, self.api)
@@ -60,39 +65,46 @@ class Plower:
         # Send some data to CoppeliaSim in a non-blocking fashion:
         self.api.sendMessage("Hello from Python! :)")
         #Inital start code
-        # self.movementControl.move(1)
-        # self.movementControl.rotateTo("E",True)
-        # self.movementControl.getPlowerOrientation()
+        self.movementControl.move(1)
         self.unfoldPlow()
-        self.movementControl.setVelocity(0.55)
-        print(self.movementControl.getPlowerPosition())
+        self.movementControl.rotateTo("E", True)
+        # self.movementControl.getPlowerOrientation()
+        self.movementControl.accelSetVelocity(1)
+
+        #print(self.movementControl.getPlowerPosition())
         while True:
             # check if plower will collide with and object
-            if (self.sensors.checkProxyArray("Front", 0.8)):
+            if (self.sensors.checkProxyArray("Front", 1.2)):
                 self.objectAvoidance()
-                self.movementControl.setVelocity(0.55)
             # if plower has left area, run edge control
             # to clear next level of map
-            if(self.sensors.checkFrontVisionSensor()):
-                time.sleep(2)
-                print("sensors flared up")
-                self.movementControl.stop()
+            if (self.enteredLine()):
                 self.edgeControl()
-                self.movementControl.setVelocity(0.55)
+                
         self.stop()
+
+    def enteredLine(self):
+        if (self.sensors.checkFrontVisionSensor() and not self.onLine):
+            self.onLine = True
+            return True
+        else:
+            self.onLine = False
+            return False
 
     def edgeControl(self):
         '''
         Code to have the plower move up one level of the map
         and continue plowing
         '''
-        print("In edge control")
+        print(f"In edge control going {'in' if self.outBoundState else 'out'}")
         # will flip to outbound while crossing out of bounds
         # while will flip to inbound when plower crosses back
         # in bound
         self.outBoundState = not self.outBoundState
         # if plower is out of bound
         if(self.outBoundState):
+            self.movementControl.decelStop()
+            self.movementControl.move(1)
             # fold plow to prevent moving out of bound snow
             self.foldPlow()
 
@@ -113,8 +125,12 @@ class Plower:
             self.unfoldPlow()
             # flip is east because now moving in opposite direction
             self.isEast = not self.isEast
-        #print(self.movementControl.getPlowerOrientation())
-    
+
+            self.movementControl.setVelocity(0.5)
+        else:
+            print("Increasing Velocity")
+            self.movementControl.setVelocity(1)
+
     def objectAvoidance(self):
         '''
         
@@ -133,22 +149,33 @@ class Plower:
         #Go south until obstacle is cleared
         self.movementControl.rotateTo("S",self.isEast)
         origin = self.movementControl.getPlowerPosition()
-        self.movementControl.setVelocity(0.4)
-        while(self.sensors.checkProxyArray(direct,1)):
+        self.movementControl.setVelocity(0.5)
+
+        while(self.sensors.checkProxyArray(direct, 1.2) and not self.enteredLine()):
             continue
+        if (self.onLine):
+            self.edgeControl()
+            return
+
         self.movementControl.setVelocity(0)
 
         # continue in direction until obstacle is cleared
         self.movementControl.rotateTo(facing, not self.isEast)
-        self.movementControl.setVelocity(0.55)
-        while(self.sensors.checkProxyArray(direct,1.1)):
+        self.movementControl.setVelocity(0.5)
+        while(self.sensors.checkProxyArray(direct,2) and not self.enteredLine()):
             continue
+        if (self.onLine):
+            self.edgeControl()
+            return
         self.movementControl.setVelocity(0)
 
         #head north until at original poisition
         self.movementControl.rotateTo("N", not self.isEast)
-        self.movementControl.move(self.movementControl.getPlowerPositionDifference(origin,"y"))
+        # Should probably check for the edge while we do this move as well somehow
+        self.movementControl.move(self.movementControl.getPlowerPositionDifference(origin, "pos-y"))
         self.movementControl.rotateTo(facing, self.isEast)
+
+        self.movementControl.accelSetVelocity(1)
 
     def stop(self):
         '''
@@ -190,6 +217,7 @@ if __name__ == '__main__':
             plower.run()
         except KeyboardInterrupt:
             plower.stop()
+            #print(plower.ra.checkDiffTimes)
         except Exception as e:
             plower.stop()
             raise e
