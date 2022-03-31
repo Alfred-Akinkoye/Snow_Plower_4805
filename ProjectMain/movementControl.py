@@ -12,6 +12,10 @@ class MovementControl():
 
     # Basic Movement Function
     def setVelocity(self, speed):
+        '''
+        Set both wheels to rotate at a certain speed
+        based on given input
+        '''
         self.LeftWheel.setVelocity(speed)
         self.RightWheel.setVelocity(speed)
 
@@ -23,10 +27,17 @@ class MovementControl():
         self.setVelocity(speed)
 
     def rotate(self, speed):
+        '''
+        rotate plower in place at a rate based
+        on the speed given to the method
+        '''
         self.LeftWheel.setVelocity(speed)
         self.RightWheel.setVelocity(-speed)
 
     def stop(self):
+        '''
+        Stops all motor movement in the plower
+        '''
         self.LeftWheel.stop()
         self.RightWheel.stop()
 
@@ -39,6 +50,10 @@ class MovementControl():
 
     # Movement Methods
     def rotateRadians(self, radians):
+        '''
+        Rotate a set number of radians
+        in diection based on ± input
+        '''
         # Rotate a set number of radians
         current = self.getPlowerOrientation()
         target = current + radians
@@ -47,7 +62,7 @@ class MovementControl():
         #print(current)
         #print(target)
 
-        # if new angle greater than pi, readjust
+        # if new angle greater than pi, readjust angle to fit on -pi to pi axis
         if (target > math.pi):
             target = -(math.pi - (target-math.pi))
         elif (target < -math.pi):
@@ -89,6 +104,9 @@ class MovementControl():
         print(f"Angle Difference After Rotation: {self.getPlowerOrientationDifference(target)})")
 
     def turnLeft(self):
+        '''
+        Rotate the plow 90 degrees CCW
+        '''
         curDir = self.getPlowerDirection()
         newDir = ""
         if curDir == "N":
@@ -103,6 +121,9 @@ class MovementControl():
         self.rotateTo(newDir, False)
 
     def turnRight(self):
+        '''
+        Rotate the plow 90 degrees Cw
+        '''
         curDir = self.getPlowerDirection()
         newDir = ""
         if curDir == "N":
@@ -117,6 +138,9 @@ class MovementControl():
         self.rotateTo(newDir, True)
 
     def move(self, distance):
+        '''
+        Have the plower move a specific distance
+        '''
         origin = self.getPlowerPosition()
         axis = self.getPlowerAxis()
         target = self.getTargetPosition(origin, distance, axis)
@@ -140,11 +164,18 @@ class MovementControl():
 
     # Localization Methods
     def getPlowerOrientation(self):
+        '''
+        Return the current orientation of plower ranging from
+        -pi to pi
+        '''
         returnCode, ori = self.api.getObjectOrientation(self.plowerOb)
         #print(ori)
         return ori[2]
 
     def getPlowerDirection(self):
+        """
+        Get the current facing of the plow
+        """
         orientation = self.getPlowerOrientation()
         orentationDegrees = orientation * 180 / math.pi
         roundedDegrees = round(orentationDegrees/90)*90
@@ -164,6 +195,9 @@ class MovementControl():
             raise Exception("DIRECTION ERROR")
 
     def getPlowerAxis(self):
+        '''
+        get the current axis the plower is moving on
+        '''
         direction = self.getPlowerDirection()
         if (direction == "N"):
             return "pos-y"
@@ -177,10 +211,20 @@ class MovementControl():
             print("AXIS ERROR")
             raise Exception("AXIS ERROR")
 
+    # Positional Methods
     def getPlowerPosition(self):
+        '''
+        Returns the current location of the plower on the map
+        '''
         return self.api.getObjectPosition(self.plowerOb)[1]
 
-    def getPlowerPositionDifference(self, target, axis):
+    def getPlowerPositionDifference(self, origin, axis):
+        '''
+        Takes a list of [x,y,z] coordinates origin, and 
+        a current axis 'x' or 'y'
+        Will return the distance between current position
+        and origin on current axis
+        '''
         currentPosition = self.getPlowerPosition()
         if (axis == "neg-x"):
             return currentPosition[0]-target[0]
@@ -195,6 +239,10 @@ class MovementControl():
             raise Exception("BAD AXIS")
 
     def getTargetPosition(self, origin, distance, axis):
+        '''
+        adds a value 'distance' to a coordinate origin
+        to either x or y axis
+        '''
         target = origin[:]
         if (axis == "neg-x"):
             target[0] = target[0] - distance

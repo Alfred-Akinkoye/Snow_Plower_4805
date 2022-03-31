@@ -67,24 +67,40 @@ class Plower:
         self.movementControl.setVelocity(0.55)
         print(self.movementControl.getPlowerPosition())
         while True:
-             if (self.sensors.checkProxyArray("Front", 0.8)):
-                 self.objectAvoidance()
-                 self.movementControl.setVelocity(0.55)
-             if(self.sensors.checkFrontVisionSensor()):
-                 time.sleep(2)
-                 print("sensors flared up")
-                 self.movementControl.stop()
-                 self.edgeControl()
-                 self.movementControl.setVelocity(0.55)
+            # check if plower will collide with and object
+            if (self.sensors.checkProxyArray("Front", 0.8)):
+                self.objectAvoidance()
+                self.movementControl.setVelocity(0.55)
+            # if plower has left area, run edge control
+            # to clear next level of map
+            if(self.sensors.checkFrontVisionSensor()):
+                time.sleep(2)
+                print("sensors flared up")
+                self.movementControl.stop()
+                self.edgeControl()
+                self.movementControl.setVelocity(0.55)
         self.stop()
 
     def edgeControl(self):
+        '''
+        Code to have the plower move up one level of the map
+        and continue plowing
+        '''
         print("In edge control")
+        # will flip to outbound while crossing out of bounds
+        # while will flip to inbound when plower crosses back
+        # in bound
         self.outBoundState = not self.outBoundState
-        print(self.outBoundState)
+        # if plower is out of bound
         if(self.outBoundState):
+            # fold plow to prevent moving out of bound snow
             self.foldPlow()
+
+            # if plower was going east, move up one meter,
+            # then continue west, vice versa if originally
+            # going west
             if(self.isEast):
+                
                 #self.movementControl.move(0.1)
                 self.movementControl.rotateTo("N",False)
                 self.movementControl.move(1)
@@ -95,10 +111,14 @@ class Plower:
                 self.movementControl.move(1)
                 self.movementControl.rotateTo("E",True)
             self.unfoldPlow()
+            # flip is east because now moving in opposite direction
             self.isEast = not self.isEast
         #print(self.movementControl.getPlowerOrientation())
     
     def objectAvoidance(self):
+        '''
+        
+        '''
         #need to make recursive to help with multiple obstacles
         #need to make option to switch to overall N/S travel
         
@@ -131,6 +151,10 @@ class Plower:
         self.movementControl.rotateTo(facing, self.isEast)
 
     def stop(self):
+        '''
+        This is a method run at the end of the simulation, it will
+        stop the running simulation and disconnect sim module
+        '''
         print("Stopping...")
         # stop the simulation
         self.api.stopSimulation()
@@ -140,11 +164,19 @@ class Plower:
 
     # Plow Control Functions
     def unfoldPlow(self):
+        '''
+        Simple method to unfold the plow to deploy it
+        '''
+        # Rotate each joint 90 degress to drop plows into position
         self.api.setJointPosition(self.leftPlowJoint, math.pi/2)
         self.api.setJointPosition(self.rightPlowJoint, -math.pi/2)
         time.sleep(1)
 
     def foldPlow(self):
+        '''
+        Method that rotates the plow back into upright position
+        Used to minimize surface area
+        '''
         self.api.setJointPosition(self.leftPlowJoint, 0)
         self.api.setJointPosition(self.rightPlowJoint, 0)
         time.sleep(1)
