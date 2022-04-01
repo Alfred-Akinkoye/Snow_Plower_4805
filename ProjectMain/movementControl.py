@@ -9,8 +9,8 @@ class MovementControl():
         self.plow = plow
         self.api = api
 
-        self.LeftWheel = Wheel(api, 'LeftJoint')
-        self.RightWheel = Wheel(api, 'RightJoint')
+        self.LeftWheel = Wheel(api, 'RightJoint')
+        self.RightWheel = Wheel(api, 'LeftJoint')
         self.plowerOb = self.api.getObject("Plower")
 
     # --- Basic Movement Functions ---
@@ -22,27 +22,26 @@ class MovementControl():
         self.LeftWheel.setVelocity(speed)
         self.RightWheel.setVelocity(speed)
 
-    def accelSetVelocity(self, speed):
-        ''' 
-        Accelerates the plow up to the given speed over time
-        This method is not safe as it sleeps for 0.4 seconds and no other check will take place in this time
-        The passed in speed should be greater than 0.8
-        Using acceleration stops the plow from "jolting" and turning off angle when accelerating too quickly
-        '''
-        self.setVelocity(0.4)
-        time.sleep(0.2)
-        self.setVelocity(0.8)
-        time.sleep(0.2)
-        self.setVelocity(speed)
-
-    def rotate(self, speed):
+    def rotate(self, speed, swing=False):
         '''
         rotate plower in place at a rate based
         on the speed given to the method
+        if swing is true the rotation is done by
+        only turning one wheel, swinging the plow
         '''
-        self.LeftWheel.setVelocity(speed)
-        self.RightWheel.setVelocity(-speed)
-
+        if not swing:
+            self.LeftWheel.setVelocity(-speed)
+            self.RightWheel.setVelocity(speed)
+        else:
+            if (speed > 0):
+                #CCW
+                self.LeftWheel.setVelocity(0)
+                self.RightWheel.setVelocity(2*abs(speed))
+            else:
+                #CW
+                self.RightWheel.setVelocity(0)
+                self.LeftWheel.setVelocity(2*abs(speed))
+                
     def stop(self):
         '''
         Stops all motor movement in the plower
@@ -50,21 +49,8 @@ class MovementControl():
         self.LeftWheel.stop()
         self.RightWheel.stop()
 
-    def decelStop(self):
-        ''' 
-        Decelerates the plow to a stop over time
-        This method is not safe as it sleeps for 0.4 seconds and no other check will take place in this time
-        The speed of the plow when this is called should be greater than 0.7.
-        This method should be called sparingly as there is very little good reason not to just stop immediately
-        '''
-        self.setVelocity(0.7)
-        time.sleep(0.2)
-        self.setVelocity(0.3)
-        time.sleep(0.2)
-        self.stop()
-
     # --- Movement Methods ---
-    def rotateTo(self, orientation):
+    def rotateTo(self, orientation, swing=False):
         """
         Rotate plower into specific cardinal direction (This method now takes the shortest direction)
         Args:
@@ -79,16 +65,16 @@ class MovementControl():
         prevDifferenceSign = difference / abs(difference)
 
         # Rotate until the threshold is reached at the given speed
-        self.rotateAtSpeedUntilThreshold(0.3, 0.4, target) # math.pi/9 = 0.348
+        self.rotateAtSpeedUntilThreshold(0.3, 0.4, target, swing) # math.pi/9 = 0.348
 
-        self.rotateAtSpeedUntilThreshold(0.05, 0.2, target)
+        self.rotateAtSpeedUntilThreshold(0.05, 0.2, target, swing)
 
-        self.rotateAtSpeedUntilThreshold(0.02, 0.02, target)
+        self.rotateAtSpeedUntilThreshold(0.02, 0.02, target, swing)
 
         self.stop()
         #print(f"Angle Difference After Rotation: {self.getPlowerOrientationDifference(target)}")
 
-    def rotateAtSpeedUntilThreshold(self, speed, threshold, target):
+    def rotateAtSpeedUntilThreshold(self, speed, threshold, target, swing=False):
         '''
         Rotates the robot at the given speed until the orientation
         is within the given threshold of the target
@@ -103,9 +89,9 @@ class MovementControl():
             if prevDifferenceSign == 0 or not differenceSign == prevDifferenceSign:
                 prevDifferenceSign = differenceSign
                 if (differenceSign > 0):
-                    self.rotate(speed)
+                    self.rotate(speed, swing)
                 else:
-                    self.rotate(-speed)
+                    self.rotate(-speed, swing)
 
     def turnLeft(self):
         '''
