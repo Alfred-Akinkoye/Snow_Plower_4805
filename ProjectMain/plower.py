@@ -9,32 +9,13 @@
 # IMPORTANT: for each successful call to simxStart, include
 # a corresponding call to simxFinish at the end!
 
-# Import the pythonAPI files from their directory
-import sys
-import os
-sys.path.append(os.path.dirname(os.path.abspath(__file__))+"/PythonAPI")
-
-
-try:
-    import sim
-except:
-    print ('--------------------------------------------------------------')
-    print ('"sim.py" could not be imported. This means very probably that')
-    print ('either "sim.py" or the remoteApi library could not be found.')
-    print ('Make sure both are in the same folder as this file,')
-    print ('or appropriately adjust the file "sim.py"')
-    print ('--------------------------------------------------------------')
-    print ('')
-
 # Import Local Classes
 from api import API
 from movementControl import MovementControl
 from sensors import Sensors
 
-from randomAlgorithm import RandomAlgorithm
-
 # Addition imports
-import time
+#import time
 import math
 
 
@@ -70,20 +51,20 @@ class Plower:
         print("Plower Running...")
         # Send some data to CoppeliaSim in a non-blocking fashion:
         self.api.sendMessage("Hello from Python! :)")
-        #Inital start code
+
+        # Inital start code
         self.movementControl.move(1)
         self.unfoldPlow()
         self.movementControl.rotateTo("E")
-        # self.movementControl.getPlowerOrientation()
         self.movementControl.accelSetVelocity(1)
 
-        #print(self.movementControl.getPlowerPosition())
         while True:
             # check if plower will collide with and object
             if (self.sensors.checkProxyArray("Front", 0.9)):
                 self.objectAvoidance()
                 if (not self.sensors.checkProxyArray("Front", 0.9)):
                     self.movementControl.accelSetVelocity(1)
+
             # if plower has left area, run edge control
             # to clear next level of map
             if (self.enteredLine()):
@@ -94,14 +75,19 @@ class Plower:
         self.stop()
 
     def enteredLine(self):
-        if (self.sensors.checkFrontVisionSensor() and not self.onLine):
-            self.onLine = True
-            return True
+        # Check if we are on the line
+        if (self.sensors.checkFrontVisionSensor()):
+            # If we are already on the line return false
+            if (self.onLine):
+                return False
+            else:
+                self.onLine = True
+                return True
         else:
             self.onLine = False
             return False
 
-    def edgeControl(self,movement = True):
+    def edgeControl(self, movement=True):
         '''
         Code to have the plower move up one level of the map
         and continue plowing
@@ -123,7 +109,6 @@ class Plower:
             # then continue west, vice versa if originally
             # going west
             if(self.isEast):
-                
                 #self.movementControl.move(0.1)
                 self.movementControl.rotateTo("N")
                 self.movementControl.move(1)
@@ -229,7 +214,7 @@ class Plower:
         # Rotate each joint 90 degress to drop plows into position
         self.api.setJointPosition(self.leftPlowJoint, math.pi/2)
         self.api.setJointPosition(self.rightPlowJoint, -math.pi/2)
-        time.sleep(1)
+        #time.sleep(1)
 
     def foldPlow(self):
         '''
@@ -238,7 +223,7 @@ class Plower:
         '''
         self.api.setJointPosition(self.leftPlowJoint, 0)
         self.api.setJointPosition(self.rightPlowJoint, 0)
-        time.sleep(1)
+        #time.sleep(1)
 
 # This is the Main Script
 if __name__ == '__main__':
