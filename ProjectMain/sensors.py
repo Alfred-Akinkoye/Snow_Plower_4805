@@ -40,7 +40,7 @@ class Sensors:
         self.proximitySensorsLeft = [self.FL_Proximity, self.FFL_Proximity,self.L_Proximity,self.LFL_Proximity, self.BL_Proximity, self.LBL_Proximity]
         self.proximitySensorsRight = [self.FR_Proximity,self.FFR_Proximity,self.BR_Proximity, self.R_Proximity, self.RRFR_Proximity, self.RBR_Proximity]
 
-        self.proxScaling ={'F_Proximity':1,'FL_Proximity': 1.2,'FR_Proximity':1.2,'FFR_Proximity':1.2,'FFL_Proximity':1.2,
+        self.proxScaling ={'F_Proximity':1,'FL_Proximity': 1.1,'FR_Proximity':1.1,'FFR_Proximity':1.1,'FFL_Proximity':1.1,
                            'B_Proximity':0.5,'BL_Proximity':0.5,'BR_Proximity':0.5, 'RBR_Proximity':0.75, 'LBL_Proximity':0.75,
                            'L_Proximity':1.2,'R_Proximity':1.2}
 

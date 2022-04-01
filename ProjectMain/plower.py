@@ -133,10 +133,11 @@ class Plower:
                 self.movementControl.rotateTo("N")
                 self.movementControl.move(1)
                 self.movementControl.rotateTo("E")
-            self.unfoldPlow()
             # flip is east because now moving in opposite direction
             self.isEast = not self.isEast
-            self.movementControl.setVelocity(0.5)
+        else:
+            # redeploy plow when reentering area
+            self.unfoldPlow()
             
         print("is east is " + str(self.isEast))
         print("outbound is " + str(self.outBoundState))
@@ -193,6 +194,10 @@ class Plower:
 
 
     def OAloop(self,facing,direction):
+        """
+        Waiting loop used in OA to detect if obstacle was cleared by plow
+        Also has if conditional to check if edge detection has occured during loop
+        """
         edgeAdjust = False
         while(self.sensors.checkProxyArray(direction,1.5) ):
             if (self.sensors.checkFrontVisionSensor() and not edgeAdjust):
@@ -200,6 +205,8 @@ class Plower:
                 if (facing != self.movementControl.getPlowerDirection()):
                     self.movementControl.setVelocity(0)
                     self.movementControl.rotateTo(facing)
+                    self.movementControl.setVelocity(0.5)
+
         return edgeAdjust
 
     def stop(self):
