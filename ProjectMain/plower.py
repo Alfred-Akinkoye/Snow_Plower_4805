@@ -122,8 +122,7 @@ class Plower:
                 self.movementControl.rotateTo("E")
             # flip is east because now moving in opposite direction
             self.isEast = not self.isEast
-        else:
-            # redeploy plow when reentering area
+
             self.unfoldPlow()
             
         print("is east is " + str(self.isEast))
@@ -161,6 +160,9 @@ class Plower:
         
         self.movementControl.setVelocity(0)
 
+        if(edgeMove or edgeAdjust):
+            self.foldPlow()
+            
         # Head north until at original poisition
         print("OA returning North")
         self.movementControl.rotateTo("N", swing=True)
