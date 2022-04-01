@@ -56,21 +56,23 @@ class Plower:
         self.movementControl.move(1)
         self.unfoldPlow()
         self.movementControl.rotateTo("E")
-        self.movementControl.accelSetVelocity(1)
+        self.movementControl.setVelocity(1)
 
         while True:
+            self.movementControl.setVelocity(1)
             # check if plower will collide with and object
-            if (self.sensors.checkProxyArray("Front", 0.9)):
+            if (self.sensors.checkProxyArray("Front", 1.1)):
                 self.objectAvoidance()
-                if (not self.sensors.checkProxyArray("Front", 0.9)):
-                    self.movementControl.accelSetVelocity(1)
+                if (not self.sensors.checkProxyArray("Front", 1.1)):
+                    self.movementControl.setVelocity(0.5)
 
             # if plower has left area, run edge control
             # to clear next level of map
             if (self.enteredLine()):
                 self.edgeControl()
-                print("Increasing Velocity")
-                self.movementControl.setVelocity(1)
+                if (not self.sensors.checkProxyArray("Front", 1.1)):
+                    self.movementControl.setVelocity(0.5)
+            
                 
         self.stop()
 
@@ -100,7 +102,7 @@ class Plower:
         # if plower is out of bound
         if(self.outBoundState):
             if(movement):
-                self.movementControl.decelStop()
+                self.movementControl.stop()
                 self.movementControl.move(0.8)
             # fold plow to prevent moving out of bound snow
             self.foldPlow()
@@ -143,27 +145,27 @@ class Plower:
         else:
             direct = "Right"
             facing = "W"
-        #Go south until obstacle is cleared
-        self.movementControl.rotateTo("S")
+        # Go south until obstacle is cleared
+        self.movementControl.rotateTo("S", swing=True)
         origin = self.movementControl.getPlowerPosition()
-        self.movementControl.setVelocity(0.5)
-        print(" OA Moving South")
+        self.movementControl.setVelocity(0.75)
+        print("OA Moving South")
         edgeMove = self.OAloop(facing,direct)
 
         self.movementControl.setVelocity(0)
         print("OA Moving E/W")
-        # continue in direction until obstacle is cleared
-        self.movementControl.rotateTo(facing)
-        self.movementControl.setVelocity(0.5)
+        # Continue in direction until obstacle is cleared
+        self.movementControl.rotateTo(facing, swing=True)
+        self.movementControl.setVelocity(0.75)
         edgeAdjust = self.OAloop(facing, direct)
         
         self.movementControl.setVelocity(0)
 
-        #head north until at original poisition
+        # Head north until at original poisition
         print("OA returning North")
-        self.movementControl.rotateTo("N")
+        self.movementControl.rotateTo("N", swing=True)
         # Should probably check for the edge while we do this move as well somehow
-        self.movementControl.move(self.movementControl.getPlowerPositionDifference(origin, "pos-y"))
+        self.movementControl.move(self.movementControl.getPlowerPositionDifference(origin, "pos-y")) # Modify pos-y to a variable getting the axis at start and going 90 deg off 
 
         if(edgeMove or edgeAdjust):
             print("OA Entering Edge Control")
@@ -184,13 +186,16 @@ class Plower:
         Also has if conditional to check if edge detection has occured during loop
         """
         edgeAdjust = False
-        while(self.sensors.checkProxyArray(direction,1.5) ):
-            if (self.sensors.checkFrontVisionSensor() and not edgeAdjust):
+        while(self.sensors.checkProxyArray(direction,1.5)):
+            # Edge Detection during OA
+            if (self.enteredLine() and not edgeAdjust):
                 edgeAdjust = True
                 if (facing != self.movementControl.getPlowerDirection()):
                     self.movementControl.setVelocity(0)
-                    self.movementControl.rotateTo(facing)
-                    self.movementControl.setVelocity(0.5)
+                    self.movementControl.rotateTo(facing, swing=True)
+                    self.movementControl.setVelocity(0.75)
+
+            # Recursive OA here
 
         return edgeAdjust
 
