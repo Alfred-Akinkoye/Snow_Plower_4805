@@ -2,6 +2,9 @@ import time
 import math
 
 class MovementControl():
+    '''
+    All movement of the plow is controlled in this class
+    '''
     def __init__(self, plow, api):
         self.plow = plow
         self.api = api
@@ -10,7 +13,7 @@ class MovementControl():
         self.RightWheel = Wheel(api, 'RightJoint')
         self.plowerOb = self.api.getObject("Plower")
 
-    # Basic Movement Function
+    # --- Basic Movement Functions ---
     def setVelocity(self, speed):
         '''
         Set both wheels to rotate at a certain speed
@@ -20,6 +23,12 @@ class MovementControl():
         self.RightWheel.setVelocity(speed)
 
     def accelSetVelocity(self, speed):
+        ''' 
+        Accelerates the plow up to the given speed over time
+        This method is not safe as it sleeps for 0.4 seconds and no other check will take place in this time
+        The passed in speed should be greater than 0.8
+        Using acceleration stops the plow from "jolting" and turning off angle when accelerating too quickly
+        '''
         self.setVelocity(0.4)
         time.sleep(0.2)
         self.setVelocity(0.8)
@@ -42,17 +51,24 @@ class MovementControl():
         self.RightWheel.stop()
 
     def decelStop(self):
+        ''' 
+        Decelerates the plow to a stop over time
+        This method is not safe as it sleeps for 0.4 seconds and no other check will take place in this time
+        The speed of the plow when this is called should be greater than 0.7.
+        This method should be called sparingly as there is very little good reason not to just stop immediately
+        '''
         self.setVelocity(0.7)
         time.sleep(0.2)
         self.setVelocity(0.3)
         time.sleep(0.2)
         self.stop()
 
-    # Movement Methods
+    # --- Movement Methods ---
     def rotateRadians(self, radians):
         '''
         Rotate a set number of radians
         in diection based on ± input
+        This function is DEPRECIATED, Instead use rotateTo
         '''
         # Rotate a set number of radians
         current = self.getPlowerOrientation()
@@ -94,13 +110,13 @@ class MovementControl():
         directionSign = -1 if (direction) else 1
         # Initially set rotation speed to 0.3
         self.rotate(directionSign*0.3)
-        while(self.getPlowerOrientationDifference(target, direction) > math.pi/9): # math.pi/9 = 0.348
+        while(abs(self.getPlowerOrientationDifference(target, direction)) > math.pi/9): # math.pi/9 = 0.348
             pass
         self.rotate(directionSign*0.06)
-        while(self.getPlowerOrientationDifference(target, direction) > 0.1):
+        while(abs(self.getPlowerOrientationDifference(target, direction)) > 0.1):
             pass
 
-        while(abs(self.getPlowerOrientationDifference(target, direction)) > 0.025):
+        while(abs(self.getPlowerOrientationDifference(target, direction)) > 0.02):
             #print(f"Angle Difference: {self.getPlowerOrientationDifference(target, direction)}")
             if(self.getPlowerOrientationDifference(target, direction) > 0):
                 self.rotate(directionSign*0.01)
@@ -147,7 +163,8 @@ class MovementControl():
 
     def move(self, distance):
         '''
-        Have the plower move a specific distance
+        Have the plower move a specific distance in metres
+        No checks take place while this method runs and blocks, use care with calling this method
         '''
         origin = self.getPlowerPosition()
         axis = self.getPlowerAxis()
@@ -166,7 +183,7 @@ class MovementControl():
 
         self.stop()
 
-    # Localization Methods
+    # --- Localization Methods ---
     def getPlowerOrientation(self):
         '''
         Return the current orientation of plower ranging from
@@ -215,7 +232,6 @@ class MovementControl():
             print("AXIS ERROR")
             raise Exception("AXIS ERROR")
 
-    # Positional Methods
     def getPlowerPosition(self):
         '''
         Returns the current location of the plower on the map
@@ -263,14 +279,33 @@ class MovementControl():
 
     def getPlowerOrientationDifference(self, target, direction):
         difference = 0
+        # If we're in the south case... (Special Beahviour, use 2Pi schema)
         if (target == math.pi):
-            difference = abs(target - abs(self.getPlowerOrientation())) 
+            # Convert orientation to between postive 0 and 2 pi instead of -pi to pi.
+            orientation2Pi = (2*math.pi + self.getPlowerOrientation()) % (2*math.pi)
+            target2Pi = (2*math.pi + target) % (2*math.pi)
+            if (direction):
+                #CW
+                difference = orientation2Pi - target2Pi
+            else:
+                #CCW
+                difference = target2Pi - orientation2Pi
         else:
-            difference = abs(target - self.getPlowerOrientation())
+            if (direction):
+                #CW
+                difference = self.getPlowerOrientation() - target
+            else:
+                #CCW
+                difference = target - self.getPlowerOrientation()
+
         return difference
 
 
 class Wheel():
+    '''
+    Defines a class for a wheel object
+    This allows for precise control of each wheel
+    '''
     def __init__(self, api, handle):
         self.api = api
         self.obj = self.api.getObject(handle) # Use API to get object handle
