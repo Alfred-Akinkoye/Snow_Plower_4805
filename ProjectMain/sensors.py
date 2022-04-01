@@ -38,6 +38,10 @@ class Sensors:
         self.proximitySensorsLeft = [self.FL_Proximity, self.FFL_Proximity,self.L_Proximity,self.LFL_Proximity, self.BL_Proximity, self.LBL_Proximity]
         self.proximitySensorsRight = [self.FR_Proximity,self.FFR_Proximity,self.BR_Proximity, self.R_Proximity, self.RRFR_Proximity, self.RBR_Proximity]
 
+        self.proxScaling ={'F_Proximity':1,'FL_Proximity': 1.2,'FR_Proximity':1.2,'FFR_Proximity':1.2,'FFL_Proximity':1.2,
+                           'B_Proximity':0.5,'BL_Proximity':0.5,'BR_Proximity':0.5, 'RBR_Proximity':0.75, 'LBL_Proximity':0.75,
+                           'L_Proximity':1.2,'R_Proximity':1.2}
+
         #self.proximitySensors = [self.F_Proximity, self.R_Proximity, self.FL_Proximity, self.FR_Proximity, self.FFL_Proximity, self.FFR_Proximity, self.B_Proximity, self.BL_Proximity, self.BR_Proximity, self.L_Proximity, self.R_Proximity, self.LFL_Proximity, self.RRFR_Proximity]
 
     # Vision Sensor Methods
@@ -48,7 +52,7 @@ class Sensors:
 
     # Proximity Sensor Methods
     def objectAhead(self, distance):
-        return checkProxyArray("Front", distance)
+        return self.checkProxyArray("Front", distance)
 
     # Check all vision sensors at once. In the event we need to check all the
     # vision sensors at once. Unlikely that we will need it though.
@@ -64,7 +68,7 @@ class Sensors:
         Directdict = {"Front":self.proximitySensorsFront,"Right":self.proximitySensorsRight,"Left":self.proximitySensorsLeft,"Back":self.proximitySensorsBack}
         array = Directdict[direction]
         for sensor in array:
-            if (sensor.getDistance() < distance):
+            if (sensor.getDistance() < distance* self.proxScaling.setdefault(sensor.objectHandle, 1)):
                 return True
         return False
 
