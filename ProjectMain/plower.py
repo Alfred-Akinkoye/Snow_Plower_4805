@@ -39,12 +39,18 @@ import math
 
 
 class Plower:
+    '''
+    The main class for the Plower. This class contains the main algorithm for the plower's brain.
+    The Plower Class can be instanciated, connected to the CoppeliaSim API and run.
+    The Plower Class creates it's own connection to CoppeliaSim through the API class and controls
+    it's movement and sensor readings through the MovementControl and Sensors classes.
+    '''
     def __init__(self):
         self.api = API()
         self.isEast = True
         self.isNorth = True
         self.hMove = True
-        self.outBoundState = False    #True if out of bounds, false if in bounds
+        self.outBoundState = False    # True if out of bounds, false if in bounds
         self.onLine = False
 
     def connectAPI(self):

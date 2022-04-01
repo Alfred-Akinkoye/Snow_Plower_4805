@@ -1,0 +1,16 @@
+### Instructions for importing our Model and running our Python Code
+
+1. Download Zip File (JazzberryJamDemoSubmission.zip)
+
+2. Unzip the folder and "cd" into it
+
+3. if you do not have python3 installed (The program will not run on python 2), 
+    intall python3 (Current Version: 3.10.4) (https://www.python.org/downloads/)
+
+4. Open the desired evaluation map in CoppeliaSim
+
+5. Load the model (Plower.ttm) into the scene and position "Plower_Base" to [0, -6.25, 0]. (Ensure rotations are [0, 0, 0])
+
+6. Start the coppeliaSim simulation
+
+7. Run plower.py ("py plower.py" or perhaps "python3 plower.py")

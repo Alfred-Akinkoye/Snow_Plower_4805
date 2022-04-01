@@ -1,10 +1,14 @@
 import math
 
 class Sensors:
+    '''
+    Sensors Class controls connecting and reading from the sensors on the plow
+    '''
     def __init__(self, plow, api):
         self.plow = plow
         self.api = api
 
+        # Register Vision (IR) Sensors
         self.FrontVisionSensor = VisionSensor(self.api, 'Front_IR')
         self.BackVisionSensor = VisionSensor(self.api, 'Back_IR')
         self.LeftVisionSensor = VisionSensor(self.api, 'Left_IR')
@@ -12,9 +16,7 @@ class Sensors:
 
         self.visionSensors = [self.FrontVisionSensor, self.BackVisionSensor, self.LeftVisionSensor, self.RightVisionSensor]
 
-
         # Register Proximity Sensors
-        # Proximity Sensors
         self.F_Proximity = ProximitySensor(self.api, 'F_Proximity')
         self.FL_Proximity = ProximitySensor(self.api, 'FL_Proximity')
         self.FR_Proximity = ProximitySensor(self.api, 'FR_Proximity')
@@ -44,19 +46,23 @@ class Sensors:
 
         #self.proximitySensors = [self.F_Proximity, self.R_Proximity, self.FL_Proximity, self.FR_Proximity, self.FFL_Proximity, self.FFR_Proximity, self.B_Proximity, self.BL_Proximity, self.BR_Proximity, self.L_Proximity, self.R_Proximity, self.LFL_Proximity, self.RRFR_Proximity]
 
-    # Vision Sensor Methods
+    # --- Vision Sensor Methods ---
     def checkFrontVisionSensor(self):
         if (self.FrontVisionSensor.checkForLine()):
             return True
         return False
 
-    # Proximity Sensor Methods
+    # --- Proximity Sensor Methods ---
     def objectAhead(self, distance):
+        '''
+        Checks the front sensors for an object, only used by randomAlgorithm
+        '''
         return self.checkProxyArray("Front", distance)
 
-    # Check all vision sensors at once. In the event we need to check all the
-    # vision sensors at once. Unlikely that we will need it though.
     def checkAllProximitySensors(self):
+        '''
+        Checks all proximity sensors, generally unused as this method takes a long time
+        '''
         for sensor in self.proximitySensors:
             temp = sensor.getDistance()
             print(temp)
@@ -64,7 +70,10 @@ class Sensors:
                 return True
         return False
 
-    def checkProxyArray(self,direction, distance):
+    def checkProxyArray(self, direction, distance):
+        '''
+        Checks if any of the sensors in the given direction are within their modified distance, retunrs true if any of the sensors are triggered
+        '''
         Directdict = {"Front":self.proximitySensorsFront,"Right":self.proximitySensorsRight,"Left":self.proximitySensorsLeft,"Back":self.proximitySensorsBack}
         array = Directdict[direction]
         for sensor in array:
@@ -73,11 +82,17 @@ class Sensors:
         return False
 
 class VisionSensor():
+    '''
+    Defines a class for the IR vision sensors
+    '''
     def __init__(self, api, objectHandle):
         self.api = api
         self.object = self.api.getObject(objectHandle) #use the api to get the object from the handle
 
     def checkForLine(self): # Returns a bool
+        '''
+        Check if the sensor is on the black line, returns true if it is
+        '''
         [returnCode, detectionState, data] = self.api.readVisionSensor(self.object)
         if (data and len(data) > 0 and len(data[0]) > 11):
             if data[0][11] < 0.1 and data[0][11] > 0:
@@ -86,12 +101,18 @@ class VisionSensor():
         return False
 
 class ProximitySensor():
+    '''
+    Defies a class for the Proximity Sensors
+    '''
     def __init__(self, api, objectHandle):
         self.api = api
         self.objectHandle = objectHandle
         self.object = self.api.getObject(objectHandle) #use the api to get the object from the handle
 
     def getDistance(self): # Returns a float
+        '''
+        Returns a float of the distance to the nearsest detected entity
+        '''
         returnedData = self.api.readProximitySensor(self.object)
 
         [returnCode,
