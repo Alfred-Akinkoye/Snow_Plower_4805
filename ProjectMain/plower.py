@@ -71,9 +71,9 @@ class Plower:
         # Send some data to CoppeliaSim in a non-blocking fashion:
         self.api.sendMessage("Hello from Python! :)")
         #Inital start code
-        #self.movementControl.move(1)
-        #self.unfoldPlow()
-        #self.movementControl.rotateTo("E", True)
+        self.movementControl.move(1)
+        self.unfoldPlow()
+        self.movementControl.rotateTo("E")
         # self.movementControl.getPlowerOrientation()
         self.movementControl.accelSetVelocity(1)
 
@@ -125,14 +125,14 @@ class Plower:
             if(self.isEast):
                 
                 #self.movementControl.move(0.1)
-                self.movementControl.rotateTo("N",False)
+                self.movementControl.rotateTo("N")
                 self.movementControl.move(1)
-                self.movementControl.rotateTo("W",False)
+                self.movementControl.rotateTo("W")
             else:
                 #self.movementControl.move(0.1)
-                self.movementControl.rotateTo("N",True)
+                self.movementControl.rotateTo("N")
                 self.movementControl.move(1)
-                self.movementControl.rotateTo("E",True)
+                self.movementControl.rotateTo("E")
             self.unfoldPlow()
             # flip is east because now moving in opposite direction
             self.isEast = not self.isEast
@@ -158,7 +158,7 @@ class Plower:
             direct = "Right"
             facing = "W"
         #Go south until obstacle is cleared
-        self.movementControl.rotateTo("S",self.isEast)
+        self.movementControl.rotateTo("S")
         origin = self.movementControl.getPlowerPosition()
         self.movementControl.setVelocity(0.5)
         print(" OA Moving South")
@@ -167,7 +167,7 @@ class Plower:
         self.movementControl.setVelocity(0)
         print("OA Moving E/W")
         # continue in direction until obstacle is cleared
-        self.movementControl.rotateTo(facing, not self.isEast)
+        self.movementControl.rotateTo(facing)
         self.movementControl.setVelocity(0.5)
         edgeAdjust = self.OAloop(facing, direct)
         
@@ -175,7 +175,7 @@ class Plower:
 
         #head north until at original poisition
         print("OA returning North")
-        self.movementControl.rotateTo("N", not self.isEast)
+        self.movementControl.rotateTo("N")
         # Should probably check for the edge while we do this move as well somehow
         self.movementControl.move(self.movementControl.getPlowerPositionDifference(origin, "pos-y"))
 
@@ -189,7 +189,7 @@ class Plower:
             else:
                 direct = "Right"
                 facing = "W"
-        self.movementControl.rotateTo(facing, self.isEast)
+        self.movementControl.rotateTo(facing)
 
 
     def OAloop(self,facing,direction):
@@ -199,7 +199,7 @@ class Plower:
                 edgeAdjust = True
                 if (facing != self.movementControl.getPlowerDirection()):
                     self.movementControl.setVelocity(0)
-                    self.movementControl.rotateTo(facing, not self.isEast)
+                    self.movementControl.rotateTo(facing)
         return edgeAdjust
 
     def stop(self):

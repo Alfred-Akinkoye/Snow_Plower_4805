@@ -64,68 +64,48 @@ class MovementControl():
         self.stop()
 
     # --- Movement Methods ---
-    def rotateRadians(self, radians):
-        '''
-        Rotate a set number of radians
-        in diection based on ± input
-        This function is DEPRECIATED, Instead use rotateTo
-        '''
-        # Rotate a set number of radians
-        current = self.getPlowerOrientation()
-        target = current + radians
-        #print("DOING Rotation: radians, From, To")
-        #print(radians)
-        #print(current)
-        #print(target)
-
-        # if new angle greater than pi, readjust angle to fit on -pi to pi axis
-        if (target > math.pi):
-            target = -(math.pi - (target-math.pi))
-        elif (target < -math.pi):
-            target = math.pi+(target+math.pi)
-
-        directionSign = -1 if (radians < 0) else 1
-        direction = (radians < 0)
-        # Initially set rotation speed to 0.3
-        self.rotate(direction*0.3)
-        while(self.getPlowerOrientationDifference(target, direction) > math.pi/9):
-            pass
-        self.rotate(direction*0.08)
-        while(self.getPlowerOrientationDifference(target, direction) > 0.02):
-            pass
-
-        self.stop()
-        #print(f"Angle Difference After Rotation: {self.getPlowerOrientationDifference(target, direction)})")
-
-    def rotateTo(self, orientation, direction):
+    def rotateTo(self, orientation):
         """
-        Rotate plower into specific cardinal direction
+        Rotate plower into specific cardinal direction (This method now takes the shortest direction)
         Args:
         orientation = enter N,E,S, or W for direction to turn to
-        direction = enter True for CW rotation, false for CCW
         """
+        #print(f"rotateTo: {orientation}")
         od = {"N":0, "E": -math.pi/2, "S": math.pi, "W": math.pi/2}
         target = od[orientation]
 
-        directionSign = -1 if (direction) else 1
-        # Initially set rotation speed to 0.3
-        self.rotate(directionSign*0.3)
-        while(abs(self.getPlowerOrientationDifference(target, direction)) > math.pi/9): # math.pi/9 = 0.348
-            pass
-        self.rotate(directionSign*0.06)
-        while(abs(self.getPlowerOrientationDifference(target, direction)) > 0.1):
-            pass
+        # Determine shortest direction
+        difference = self.getPlowerOrientationDifference(target)
+        prevDifferenceSign = difference / abs(difference)
 
-        while(abs(self.getPlowerOrientationDifference(target, direction)) > 0.02):
-            #print(f"Angle Difference: {self.getPlowerOrientationDifference(target, direction)}")
-            if(self.getPlowerOrientationDifference(target, direction) > 0):
-                self.rotate(directionSign*0.01)
-            else:
-                self.rotate(-directionSign*0.01)
-        
+        # Rotate until the threshold is reached at the given speed
+        self.rotateAtSpeedUntilThreshold(0.3, 0.4, target) # math.pi/9 = 0.348
+
+        self.rotateAtSpeedUntilThreshold(0.05, 0.2, target)
+
+        self.rotateAtSpeedUntilThreshold(0.02, 0.02, target)
 
         self.stop()
-        #print(f"Angle Difference After Rotation: {self.getPlowerOrientationDifference(target, direction)}")
+        #print(f"Angle Difference After Rotation: {self.getPlowerOrientationDifference(target)}")
+
+    def rotateAtSpeedUntilThreshold(self, speed, threshold, target):
+        '''
+        Rotates the robot at the given speed until the orientation
+        is within the given threshold of the target
+        This method stops overshoot by rotating back
+        '''
+        difference = self.getPlowerOrientationDifference(target)
+        prevDifferenceSign = 0
+            
+        while(abs(difference) > threshold):
+            difference = self.getPlowerOrientationDifference(target)
+            differenceSign = math.copysign(1, difference)
+            if prevDifferenceSign == 0 or not differenceSign == prevDifferenceSign:
+                prevDifferenceSign = differenceSign
+                if (differenceSign > 0):
+                    self.rotate(speed)
+                else:
+                    self.rotate(-speed)
 
     def turnLeft(self):
         '''
@@ -142,7 +122,7 @@ class MovementControl():
         elif curDir == "W":
             newDir = "S"
 
-        self.rotateTo(newDir, False)
+        self.rotateTo(newDir)
 
     def turnRight(self):
         '''
@@ -159,7 +139,7 @@ class MovementControl():
         elif curDir == "W":
             newDir = "N"
 
-        self.rotateTo(newDir, True)
+        self.rotateTo(newDir)
 
     def move(self, distance):
         '''
@@ -277,26 +257,12 @@ class MovementControl():
             raise Exception("BAD AXIS")
         return target
 
-    def getPlowerOrientationDifference(self, target, direction):
-        difference = 0
-        # If we're in the south case... (Special Beahviour, use 2Pi schema)
-        if (target == math.pi):
-            # Convert orientation to between postive 0 and 2 pi instead of -pi to pi.
-            orientation2Pi = (2*math.pi + self.getPlowerOrientation()) % (2*math.pi)
-            target2Pi = (2*math.pi + target) % (2*math.pi)
-            if (direction):
-                #CW
-                difference = orientation2Pi - target2Pi
-            else:
-                #CCW
-                difference = target2Pi - orientation2Pi
-        else:
-            if (direction):
-                #CW
-                difference = self.getPlowerOrientation() - target
-            else:
-                #CCW
-                difference = target - self.getPlowerOrientation()
+    def getPlowerOrientationDifference(self, target):
+        difference = target - self.getPlowerOrientation()
+        if (difference < -math.pi):
+            difference = difference + 2*math.pi
+        if (difference > math.pi):
+            difference = difference - 2*math.pi
 
         return difference
 
