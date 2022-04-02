@@ -61,7 +61,7 @@ class Plower:
         while True:
             # check if plower will collide with and object
             if (self.sensors.checkProxyArray("Front", 0.9)):
-                self.objectAvoidance()
+                self.varOA()
                 if (not self.sensors.checkProxyArray("Front", 0.9)):
                     self.movementControl.accelSetVelocity(1)
 
@@ -127,7 +127,7 @@ class Plower:
         print("is east is " + str(self.isEast))
         print("outbound is " + str(self.outBoundState))
 
-    def objectAvoidance(self, NS=False):
+    def objectAvoidance(self):
         '''
         
         '''
@@ -143,13 +143,13 @@ class Plower:
         else:
             direct = "Right"
             facing = "W"
-            
+
         #Go south until obstacle is cleared
         self.movementControl.rotateTo("S")
         origin = self.movementControl.getPlowerPosition()
         self.movementControl.setVelocity(0.5)
         print(" OA Moving South")
-        edgeMove = self.OAloop(facing,direct,NS)
+        edgeMove = self.OAloop(facing,direct)
 
         self.movementControl.setVelocity(0)
         print("OA Moving E/W")
