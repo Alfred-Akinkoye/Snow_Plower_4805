@@ -126,6 +126,7 @@ class Plower:
             
         print("is east is " + str(self.isEast))
         print("outbound is " + str(self.outBoundState))
+        return self.movementControl.getPlowerDirection()
 
     
 
@@ -227,7 +228,7 @@ class Plower:
 
         if(not NS and (edgeMove + edgeAdjust + edgeFinal) == 1):
             print("After OA doing edge control")
-            self.edgeControl(False)
+            facing = self.edgeControl(False)
         self.movementControl.rotateTo(facing)
 
     def objectAvoidance(self):
