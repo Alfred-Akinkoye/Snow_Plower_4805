@@ -1,21 +1,9 @@
-# Make sure to have the server side running in CoppeliaSim:
-# in a child script of a CoppeliaSim scene, add following command
-# to be executed just once, at simulation start:
-#
-# simRemoteApi.start(19999)
-#
-# then start simulation, and run this program.
-#
-# IMPORTANT: for each successful call to simxStart, include
-# a corresponding call to simxFinish at the end!
-
 # Import Local Classes
 from api import API
 from movementControl import MovementControl
 from sensors import Sensors
 
-# Addition imports
-#import time
+# Additional imports
 import math
 
 
@@ -35,6 +23,11 @@ class Plower:
         self.onLine = False
 
     def connectAPI(self):
+        '''
+        Connects to coppeliaSim using the PythonAPI
+        Initalizes the plow joint variables to the plower class
+        as well as the movement control and sensors classes
+        '''
         if (self.api.connect()):
             self.movementControl = MovementControl(self, self.api)
             self.sensors = Sensors(self, self.api)
@@ -46,10 +39,15 @@ class Plower:
         return False
 
     def run(self):
+        '''
+        The plower run method defines the brain of the plower. 
+        This includes the main algorithm and bahaviour of the plow.
+        This should be called to start the plow moving in the map.
+        '''
 
         print("Plower Running...")
-        # Send some data to CoppeliaSim in a non-blocking fashion:
-        self.api.sendMessage("Hello from Python! :)")
+
+        self.api.sendMessage("Python Code Connected!")
 
         # Inital start code
         self.movementControl.move(1)
@@ -76,6 +74,11 @@ class Plower:
         self.stop()
 
     def enteredLine(self):
+        '''
+        Checks if the plow has entered the line
+        Returns False if the plow is not on the 
+        line or is already on the line
+        '''
         # Check if we are on the line
         if (self.sensors.checkFrontVisionSensor()):
             # If we are already on the line return false
@@ -127,9 +130,6 @@ class Plower:
         print("is east is " + str(self.isEast))
         print("outbound is " + str(self.outBoundState))
         return self.movementControl.getPlowerDirection()
-
-    
-
 
     def OAloop(self,facing,direction,NS):
         """
@@ -231,60 +231,6 @@ class Plower:
             facing = self.edgeControl(False)
         self.movementControl.rotateTo(facing)
 
-    def objectAvoidance(self):
-        '''
-        DEPRECIATED Old Object Avoidance
-        '''
-        #need to make recursive to help with multiple obstacles
-        #need to make option to switch to overall N/S travel
-        
-        #setup
-        print("Entering OA")
-        self.movementControl.setVelocity(0)
-        if(self.isEast):
-            direct = "Left"
-            facing = "E"
-        else:
-            direct = "Right"
-            facing = "W"
-
-        #Go south until obstacle is cleared
-        self.movementControl.rotateTo("S", swing=False)
-        origin = self.movementControl.getPlowerPosition()
-        self.movementControl.setVelocity(0.75)
-        print("OA Moving South")
-        edgeMove = self.OAloop(facing,direct)
-
-        self.movementControl.setVelocity(0)
-        print("OA Moving E/W")
-        # Continue in direction until obstacle is cleared
-        self.movementControl.rotateTo(facing, swing=False)
-        self.movementControl.setVelocity(0.75)
-        edgeAdjust = self.OAloop(facing, direct)
-        
-        self.movementControl.setVelocity(0)
-
-        if(edgeMove or edgeAdjust):
-            self.foldPlow()
-            
-        # Head north until at original poisition
-        print("OA returning North")
-        self.movementControl.rotateTo("N", swing=False)
-        # Should probably check for the edge while we do this move as well somehow
-        self.movementControl.move(self.movementControl.getPlowerPositionDifference(origin, "pos-y")) # Modify pos-y to a variable getting the axis at start and going 90 deg off 
-
-        if(edgeMove ^ edgeAdjust):
-            print("OA Entering Edge Control")
-            self.edgeControl(False)
-            print("OA Exiting Edge Control")
-            if(self.isEast):
-                direct = "Left"
-                facing = "E"
-            else:
-                direct = "Right"
-                facing = "W"
-        self.movementControl.rotateTo(facing)
-
     def stop(self):
         '''
         This is a method run at the end of the simulation, it will
@@ -297,7 +243,7 @@ class Plower:
         self.api.disconnect()
         print("Plower Disconnected")
 
-    # Plow Control Functions
+    # Plow Joint Control Functions
     def unfoldPlow(self):
         '''
         Simple method to unfold the plow to deploy it
@@ -316,7 +262,7 @@ class Plower:
         self.api.setJointPosition(self.rightPlowJoint, 0)
         #time.sleep(1)
 
-# This is the Main Script
+# This is the Main Script that is called when running plower.py
 if __name__ == '__main__':
     print ('Program started')
     plower = Plower()
@@ -325,7 +271,6 @@ if __name__ == '__main__':
             plower.run()
         except KeyboardInterrupt:
             plower.stop()
-            #print(plower.ra.checkDiffTimes)
         except Exception as e:
             plower.stop()
             raise e
