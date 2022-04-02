@@ -9,8 +9,8 @@ class MovementControl():
         self.plow = plow
         self.api = api
 
-        self.LeftWheel = Wheel(api, 'RightJoint')
-        self.RightWheel = Wheel(api, 'LeftJoint')
+        self.LeftWheel = Wheel(api, 'LeftJoint')
+        self.RightWheel = Wheel(api, 'RightJoint')
         self.plowerOb = self.api.getObject("Plower")
 
     # --- Basic Movement Functions ---
@@ -108,7 +108,7 @@ class MovementControl():
         elif curDir == "W":
             newDir = "S"
 
-        self.rotateTo(newDir)
+        self.rotateTo(newDir, swing=True)
 
     def turnRight(self):
         '''
@@ -125,7 +125,7 @@ class MovementControl():
         elif curDir == "W":
             newDir = "N"
 
-        self.rotateTo(newDir)
+        self.rotateTo(newDir, swing=True)
 
     def move(self, distance):
         '''
