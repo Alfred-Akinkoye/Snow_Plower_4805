@@ -4,6 +4,8 @@ import math
 class MovementControl():
     '''
     All movement of the plow is controlled in this class
+    The various methods described here can be called from
+    the main plower class.
     '''
     def __init__(self, plow, api):
         self.plow = plow
@@ -24,7 +26,7 @@ class MovementControl():
 
     def rotate(self, speed, swing=False):
         '''
-        rotate plower in place at a rate based
+        Rotates the plower in place at a rate based
         on the speed given to the method
         if swing is true the rotation is done by
         only turning one wheel, swinging the plow
@@ -52,11 +54,12 @@ class MovementControl():
     # --- Movement Methods ---
     def rotateTo(self, orientation, swing=False):
         """
-        Rotate plower into specific cardinal direction (This method now takes the shortest direction)
+        Rotate plower into specific cardinal direction 
+        (This method now takes the shortest direction)
         Args:
         orientation = enter N,E,S, or W for direction to turn to
+        swing = true if the rotations should be swings
         """
-        #print(f"rotateTo: {orientation}")
         od = {"N":0, "E": -math.pi/2, "S": math.pi, "W": math.pi/2}
         target = od[orientation]
 
@@ -72,7 +75,6 @@ class MovementControl():
         self.rotateAtSpeedUntilThreshold(0.02, 0.02, target, swing)
 
         self.stop()
-        #print(f"Angle Difference After Rotation: {self.getPlowerOrientationDifference(target)}")
 
     def rotateAtSpeedUntilThreshold(self, speed, threshold, target, swing=False):
         '''
@@ -82,10 +84,11 @@ class MovementControl():
         '''
         difference = self.getPlowerOrientationDifference(target)
         prevDifferenceSign = 0
-            
+        
         while(abs(difference) > threshold):
             difference = self.getPlowerOrientationDifference(target)
             differenceSign = math.copysign(1, difference)
+            # If we have overshot we switch directions
             if prevDifferenceSign == 0 or not differenceSign == prevDifferenceSign:
                 prevDifferenceSign = differenceSign
                 if (differenceSign > 0):
@@ -135,14 +138,10 @@ class MovementControl():
         origin = self.getPlowerPosition()
         axis = self.getPlowerAxis()
         target = self.getTargetPosition(origin, distance, axis)
-        print(f"In Move")
-
 
         self.setVelocity(0.5)
         while self.getPlowerPositionDifference(target, axis) > 0.1:
-            #print(f"Position Difference: {self.getPlowerPositionDifference(target, axis)}")
             continue
-        #print("Slowing Move")
         self.setVelocity(0.05)
         while self.getPlowerPositionDifference(target, axis) > 0.05:
             continue
@@ -159,10 +158,17 @@ class MovementControl():
         #print(ori)
         return ori[2]
 
+    def getPlowerPosition(self):
+        '''
+        Returns the current location of the plower on the map
+        '''
+        return self.api.getObjectPosition(self.plowerOb)[1]
+
+    # --- Direction, Axis, and Target Methods ---
     def getPlowerDirection(self):
-        """
-        Get the current facing of the plow
-        """
+        '''
+        Get the current facing of the plow (N, S, E, or W)
+        '''
         orientation = self.getPlowerOrientation()
         orentationDegrees = orientation * 180 / math.pi
         roundedDegrees = round(orentationDegrees/90)*90
@@ -183,7 +189,7 @@ class MovementControl():
 
     def getPlowerAxis(self):
         '''
-        get the current axis the plower is moving on
+        Get the current axis the plower is moving on and facing
         '''
         direction = self.getPlowerDirection()
         if (direction == "N"):
@@ -198,36 +204,10 @@ class MovementControl():
             print("AXIS ERROR")
             raise Exception("AXIS ERROR")
 
-    def getPlowerPosition(self):
-        '''
-        Returns the current location of the plower on the map
-        '''
-        return self.api.getObjectPosition(self.plowerOb)[1]
-
-    def getPlowerPositionDifference(self, target, axis):
-        '''
-        Takes a list of [x,y,z] coordinates origin, and 
-        a current axis 'x' or 'y'
-        Will return the distance between current position
-        and origin on current axis
-        '''
-        currentPosition = self.getPlowerPosition()
-        if (axis == "neg-x"):
-            return currentPosition[0]-target[0]
-        elif (axis == "pos-x"):
-            return target[0]-currentPosition[0]
-        elif (axis == "neg-y"):
-            return currentPosition[1]-target[1]
-        elif (axis == "pos-y"):
-            return target[1]-currentPosition[1]
-        else:
-            print(f"BAD AXIS: {axis}")
-            raise Exception("BAD AXIS")
-
     def getTargetPosition(self, origin, distance, axis):
         '''
         adds a value 'distance' to a coordinate origin
-        to either x or y axis
+        to either x or y axis to return a target position
         '''
         target = origin[:]
         if (axis == "neg-x"):
@@ -243,7 +223,33 @@ class MovementControl():
             raise Exception("BAD AXIS")
         return target
 
+    # --- Difference Methods ---
+    def getPlowerPositionDifference(self, target, axis):
+        '''
+        Takes a list of [x,y,z] coordinates origin, and 
+        a current axis 'x' or 'y'
+        Will return the distance between current position
+        and origin along the current axis 
+        '''
+        currentPosition = self.getPlowerPosition()
+        if (axis == "neg-x"):
+            return currentPosition[0]-target[0]
+        elif (axis == "pos-x"):
+            return target[0]-currentPosition[0]
+        elif (axis == "neg-y"):
+            return currentPosition[1]-target[1]
+        elif (axis == "pos-y"):
+            return target[1]-currentPosition[1]
+        else:
+            print(f"BAD AXIS: {axis}")
+            raise Exception("BAD AXIS")
+
     def getPlowerOrientationDifference(self, target):
+        '''
+        Returns the differnece in rotation from the current
+        orientation to the target orientation as a value
+        between -pi and pi
+        '''
         difference = target - self.getPlowerOrientation()
         if (difference < -math.pi):
             difference = difference + 2*math.pi
@@ -260,11 +266,17 @@ class Wheel():
     '''
     def __init__(self, api, handle):
         self.api = api
-        self.obj = self.api.getObject(handle) # Use API to get object handle
+        self.obj = self.api.getObject(handle)
 
     def setVelocity(self, speed):
-        # We may need to convert "speed" into rads/s? based on wheel size?
+        '''
+        Sets the velocity of the wheel, speed is converted to CoppeliaSim
+        by the API class and should be passed in here as m/s
+        '''
         self.api.setJointVelocity(self.obj, speed)
 
     def stop(self):
+        '''
+        Stops the wheel by setting it's velocity to 0.
+        '''
         self.api.setJointVelocity(self.obj, 0)
