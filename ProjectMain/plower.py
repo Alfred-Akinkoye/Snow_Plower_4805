@@ -61,9 +61,9 @@ class Plower:
         while True:
             self.movementControl.setVelocity(1)
             # check if plower will collide with and object
-            if (self.sensors.checkProxyArray("Front", 0.9)):
+            if (self.sensors.checkProxyArray("Front", 1.2)):
                 self.varOA()
-                if (not self.sensors.checkProxyArray("Front", 0.9)):
+                if (not self.sensors.checkProxyArray("Front", 1.2)):
                     self.movementControl.setVelocity(0.5)
 
             # if plower has left area, run edge control
@@ -147,7 +147,7 @@ class Plower:
                     self.movementControl.setVelocity(0.75)
 
             # Recursive Object Avoidance
-            if (self.sensors.checkProxyArray("Front", 0.9)):
+            if (self.sensors.checkProxyArray("Front", 1.2)):
                 if(self.movementControl.getPlowerDirection() in ["N","S"]):
                     self.varOA(True, facing)
                 else:
@@ -220,7 +220,7 @@ class Plower:
                     self.movementControl.setVelocity(0)
                     self.movementControl.rotateTo(facing)
                     self.movementControl.setVelocity(0.5)
-            if (self.sensors.checkProxyArray("Front", 0.9)):
+            if (self.sensors.checkProxyArray("Front", 1.2)):
                 if(self.movementControl.getPlowerDirection() in ["N","S"]):
                     self.varOA(True, facing)
                 else:
