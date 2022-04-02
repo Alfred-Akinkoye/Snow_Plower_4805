@@ -1,8 +1,8 @@
 ### Instructions for importing our Model and running our Python Code
 
-1. Download Zip File (JazzberryJamDemoSubmission.zip)
+1. Download Zip File (JazzberryJamDemoSubmission.zip) (You've likely already done this)
 
-2. Unzip the folder in your chosen directory
+2. Unzip the folder in your chosen directory (You've likely already done this)
 
 3. Using a shell program, "cd" into the unzipped directory
 
@@ -17,4 +17,4 @@
 
 7. Start the coppeliaSim simulation
 
-8. Run plower.py In the shell program by: ("py plower.py" or "python3 plower.py")
+8. Run plower.py in the shell program by: ("py plower.py" or "python3 plower.py")

@@ -102,7 +102,6 @@ class Plower:
         Code to have the plower move up one level of the map
         and continue plowing
         '''
-        print(f"In edge control going {'in' if self.outBoundState else 'out'}")
         # will flip to outbound while crossing out of bounds
         # while will flip to inbound when plower crosses back
         # in bound
@@ -133,8 +132,6 @@ class Plower:
 
             self.unfoldPlow()
             
-        print("is east is " + str(self.isEast))
-        print("outbound is " + str(self.outBoundState))
         return self.movementControl.getPlowerDirection()
 
     def OAloop(self,facing,direction,NS):
@@ -244,7 +241,6 @@ class Plower:
         # if not moving north or south and a edge detection instance occured
         # run edge detection and update facing
         if(not NS and (edgeMove + edgeAdjust + edgeFinal) == 1):
-            print("After OA doing edge control")
             facing = self.edgeControl(False)
         self.movementControl.rotateTo(facing)
 
@@ -268,7 +264,6 @@ class Plower:
         # Rotate each joint 90 degress to drop plows into position
         self.api.setJointPosition(self.leftPlowJoint, math.pi/2)
         self.api.setJointPosition(self.rightPlowJoint, -math.pi/2)
-        #time.sleep(1)
 
     def foldPlow(self):
         '''
@@ -277,7 +272,6 @@ class Plower:
         '''
         self.api.setJointPosition(self.leftPlowJoint, 0)
         self.api.setJointPosition(self.rightPlowJoint, 0)
-        #time.sleep(1)
 
 # This is the Main Script that is called when running plower.py
 if __name__ == '__main__':
