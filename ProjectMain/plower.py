@@ -156,33 +156,43 @@ class Plower:
         return edgeAdjust
     
     def varOA(self, NS=False, prevFacing=None):
+        '''
+        New variant of Object Avoidance that can work recursively
+        with object avoidance and edge detection
+        NS: variable used in recursion while moving north and south
+        prevFacing: used in recursion, passes facing of previous OA call
+        '''
 
+        # stop and get current plow location and direction
         self.movementControl.setVelocity(0)
         origin = self.movementControl.getPlowerPosition()
         facing = self.movementControl.getPlowerDirection()
+
+        # get sequence of turns needed based on current and previous facing
         if(facing in ["N","E"]):
             turns = ["R","L","L","R"]
         else:
             turns = ["L","R","R","L"]
-        
         if (not prevFacing is None and prevFacing in ["W","E"]):
             if prevFacing == "W":
                 turns = ["L","R","R","L"]
             else:
                 turns = ["R","L","L","R"]
 
-
+        # make the first turn and drive until obstacle
+        # is no longer in view of side sensors
         if(turns[0] == "R"):
             self.movementControl.turnRight()
             direction = "Left"
         else:
             self.movementControl.turnLeft()
-            direction = "Right"
-        
+            direction = "Right"        
         self.movementControl.setVelocity(0.75)
         edgeMove = self.OAloop(facing, direction, NS)
         self.movementControl.setVelocity(0)
 
+        # make the second turn and drive until obstacle
+        # is no longer in view of side sensors
         if(turns[1] == "R"):
             self.movementControl.turnRight()
         else:
@@ -192,12 +202,12 @@ class Plower:
         self.movementControl.setVelocity(0)
         
 
+        # for third turn, return plower inline with original position
         if(turns[2] == "R"):
             self.movementControl.turnRight()
         else:
             self.movementControl.turnLeft()
-        
-
+        # get axis to measure return distance from using current and previous facing
         if facing in ["E", "W"]:
             axis = "pos-y"
         elif facing == "N":
@@ -206,13 +216,13 @@ class Plower:
             else:
                 axis = "pos-x"
         else:
-        # S
             if prevFacing == "E":
                 axis = "pos-x"
             else:
                 axis = "neg-x"
         self.movementControl.setVelocity(0.5)
         edgeFinal = False
+        #move along axis until back in previous position
         while(self.movementControl.getPlowerPositionDifference(origin, axis) > 0.05):
             if (self.sensors.checkFrontVisionSensor() and not edgeFinal and not NS):
                 edgeFinal = True
@@ -225,7 +235,8 @@ class Plower:
                     self.varOA(True, facing)
                 else:
                     self.varOA(False,facing)
-
+        # if not moving north or south and a edge detection instance occured
+        # run edge detection and update facing
         if(not NS and (edgeMove + edgeAdjust + edgeFinal) == 1):
             print("After OA doing edge control")
             facing = self.edgeControl(False)
