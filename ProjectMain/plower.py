@@ -61,16 +61,16 @@ class Plower:
         while True:
             self.movementControl.setVelocity(1)
             # check if plower will collide with and object
-            if (self.sensors.checkProxyArray("Front", 1.2)):
+            if (self.sensors.checkProxyArray("Front", 0.9)):
                 self.varOA()
-                if (not self.sensors.checkProxyArray("Front", 1.2)):
+                if (not self.sensors.checkProxyArray("Front", 0.9)):
                     self.movementControl.setVelocity(0.5)
 
             # if plower has left area, run edge control
             # to clear next level of map
             if (self.enteredLine()):
                 self.edgeControl()
-                if (not self.sensors.checkProxyArray("Front", 1.1)):
+                if (not self.sensors.checkProxyArray("Front", 0.9)):
                     self.movementControl.setVelocity(0.5)
             
                 
@@ -103,7 +103,7 @@ class Plower:
         if(self.outBoundState):
             if(movement):
                 self.movementControl.stop()
-                self.movementControl.move(0.8)
+                self.movementControl.move(0.9)
             # fold plow to prevent moving out of bound snow
             self.foldPlow()
 
@@ -147,7 +147,7 @@ class Plower:
                     self.movementControl.setVelocity(0.75)
 
             # Recursive Object Avoidance
-            if (self.sensors.checkProxyArray("Front", 1.2)):
+            if (self.sensors.checkProxyArray("Front", 0.9)):
                 if(self.movementControl.getPlowerDirection() in ["N","S"]):
                     self.varOA(True, facing)
                 else:
@@ -220,7 +220,7 @@ class Plower:
                     self.movementControl.setVelocity(0)
                     self.movementControl.rotateTo(facing)
                     self.movementControl.setVelocity(0.5)
-            if (self.sensors.checkProxyArray("Front", 1.2)):
+            if (self.sensors.checkProxyArray("Front", 0.9)):
                 if(self.movementControl.getPlowerDirection() in ["N","S"]):
                     self.varOA(True, facing)
                 else:
@@ -248,7 +248,7 @@ class Plower:
             facing = "W"
 
         #Go south until obstacle is cleared
-        self.movementControl.rotateTo("S", swing=True)
+        self.movementControl.rotateTo("S", swing=False)
         origin = self.movementControl.getPlowerPosition()
         self.movementControl.setVelocity(0.75)
         print("OA Moving South")
@@ -257,7 +257,7 @@ class Plower:
         self.movementControl.setVelocity(0)
         print("OA Moving E/W")
         # Continue in direction until obstacle is cleared
-        self.movementControl.rotateTo(facing, swing=True)
+        self.movementControl.rotateTo(facing, swing=False)
         self.movementControl.setVelocity(0.75)
         edgeAdjust = self.OAloop(facing, direct)
         
@@ -268,7 +268,7 @@ class Plower:
             
         # Head north until at original poisition
         print("OA returning North")
-        self.movementControl.rotateTo("N", swing=True)
+        self.movementControl.rotateTo("N", swing=False)
         # Should probably check for the edge while we do this move as well somehow
         self.movementControl.move(self.movementControl.getPlowerPositionDifference(origin, "pos-y")) # Modify pos-y to a variable getting the axis at start and going 90 deg off 
 

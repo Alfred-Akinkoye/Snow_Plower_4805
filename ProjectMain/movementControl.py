@@ -108,7 +108,7 @@ class MovementControl():
         elif curDir == "W":
             newDir = "S"
 
-        self.rotateTo(newDir, swing=True)
+        self.rotateTo(newDir, swing=False)
 
     def turnRight(self):
         '''
@@ -125,7 +125,7 @@ class MovementControl():
         elif curDir == "W":
             newDir = "N"
 
-        self.rotateTo(newDir, swing=True)
+        self.rotateTo(newDir, swing=False)
 
     def move(self, distance):
         '''
