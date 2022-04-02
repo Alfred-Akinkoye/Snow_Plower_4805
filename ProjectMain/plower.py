@@ -22,6 +22,12 @@ class Plower:
         self.outBoundState = False    # True if out of bounds, false if in bounds
         self.onLine = False
 
+        self.topSpeed = 0.9
+        self.midSpeed = 0.75
+        self.lowSpeed = 0.5
+        self.frontSensorDistance = 0.9
+        self.OASensorDistance = 1.6
+
     def connectAPI(self):
         '''
         Connects to coppeliaSim using the PythonAPI
@@ -53,22 +59,22 @@ class Plower:
         self.movementControl.move(1)
         self.unfoldPlow()
         self.movementControl.rotateTo("E")
-        self.movementControl.setVelocity(0.9)
+        self.movementControl.setVelocity(self.topSpeed)
 
         while True:
-            self.movementControl.setVelocity(0.9)
+            self.movementControl.setVelocity(self.topSpeed)
             # check if plower will collide with and object
-            if (self.sensors.checkProxyArray("Front", 0.9)):
-                self.varOA()
-                if (not self.sensors.checkProxyArray("Front", 0.9)):
-                    self.movementControl.setVelocity(0.5)
+            if (self.sensors.checkProxyArray("Front", self.frontSensorDistance)):
+                self.recursiveOA()
+                if (not self.sensors.checkProxyArray("Front", self.frontSensorDistance)):
+                    self.movementControl.setVelocity(self.lowSpeed)
 
             # if plower has left area, run edge control
             # to clear next level of map
             if (self.enteredLine()):
                 self.edgeControl()
-                if (not self.sensors.checkProxyArray("Front", 0.9)):
-                    self.movementControl.setVelocity(0.5)
+                if (not self.sensors.checkProxyArray("Front", self.frontSensorDistance)):
+                    self.movementControl.setVelocity(self.lowSpeed)
             
                 
         self.stop()
@@ -137,25 +143,25 @@ class Plower:
         Also has if conditional to check if edge detection has occured during loop
         """
         edgeAdjust = False
-        while(self.sensors.checkProxyArray(direction, 1.6)):
+        while(self.sensors.checkProxyArray(direction, self.OASensorDistance)):
             # Edge Detection in OA
             if (self.sensors.checkFrontVisionSensor() and not edgeAdjust and not NS):
                 edgeAdjust = True
                 if (facing != self.movementControl.getPlowerDirection()):
-                    self.movementControl.setVelocity(0)
+                    self.movementControl.stop()
                     self.movementControl.rotateTo(facing)
-                    self.movementControl.setVelocity(0.75)
+                    self.movementControl.setVelocity(self.midSpeed)
 
             # Recursive Object Avoidance
-            if (self.sensors.checkProxyArray("Front", 0.9)):
+            if (self.sensors.checkProxyArray("Front", self.frontSensorDistance)):
                 if(self.movementControl.getPlowerDirection() in ["N","S"]):
-                    self.varOA(True, facing)
+                    self.recursiveOA(True, facing)
                 else:
-                    self.varOA(False, facing)
+                    self.recursiveOA(False, facing)
 
         return edgeAdjust
     
-    def varOA(self, NS=False, prevFacing=None):
+    def recursiveOA(self, NS=False, prevFacing=None):
         '''
         New variant of Object Avoidance that can work recursively
         with object avoidance and edge detection
@@ -164,7 +170,7 @@ class Plower:
         '''
 
         # stop and get current plow location and direction
-        self.movementControl.setVelocity(0)
+        self.movementControl.stop()
         origin = self.movementControl.getPlowerPosition()
         facing = self.movementControl.getPlowerDirection()
 
@@ -187,9 +193,9 @@ class Plower:
         else:
             self.movementControl.turnLeft()
             direction = "Right"        
-        self.movementControl.setVelocity(0.75)
+        self.movementControl.setVelocity(self.midSpeed)
         edgeMove = self.OAloop(facing, direction, NS)
-        self.movementControl.setVelocity(0)
+        self.movementControl.stop()
 
         # make the second turn and drive until obstacle
         # is no longer in view of side sensors
@@ -197,9 +203,9 @@ class Plower:
             self.movementControl.turnRight()
         else:
             self.movementControl.turnLeft()
-        self.movementControl.setVelocity(0.75)
+        self.movementControl.setVelocity(self.midSpeed)
         edgeAdjust = self.OAloop(facing,direction, NS)
-        self.movementControl.setVelocity(0)
+        self.movementControl.stop()
         
 
         # for third turn, return plower inline with original position
@@ -220,21 +226,21 @@ class Plower:
                 axis = "pos-x"
             else:
                 axis = "neg-x"
-        self.movementControl.setVelocity(0.5)
+        self.movementControl.setVelocity(self.lowSpeed)
         edgeFinal = False
-        #move along axis until back in previous position
+        # move along axis until back in previous position
         while(self.movementControl.getPlowerPositionDifference(origin, axis) > 0.05):
             if (self.sensors.checkFrontVisionSensor() and not edgeFinal and not NS):
                 edgeFinal = True
                 if (facing != self.movementControl.getPlowerDirection()):
-                    self.movementControl.setVelocity(0)
+                    self.movementControl.stop()
                     self.movementControl.rotateTo(facing)
-                    self.movementControl.setVelocity(0.5)
-            if (self.sensors.checkProxyArray("Front", 0.9)):
+                    self.movementControl.setVelocity(self.lowSpeed)
+            if (self.sensors.checkProxyArray("Front", self.frontSensorDistance)):
                 if(self.movementControl.getPlowerDirection() in ["N","S"]):
-                    self.varOA(True, facing)
+                    self.recursiveOA(True, facing)
                 else:
-                    self.varOA(False,facing)
+                    self.recursiveOA(False,facing)
         # if not moving north or south and a edge detection instance occured
         # run edge detection and update facing
         if(not NS and (edgeMove + edgeAdjust + edgeFinal) == 1):
