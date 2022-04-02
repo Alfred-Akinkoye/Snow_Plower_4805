@@ -46,7 +46,6 @@ class Plower:
         return False
 
     def run(self):
-        # MODIFY CODE HERE
 
         print("Plower Running...")
         # Send some data to CoppeliaSim in a non-blocking fashion:
@@ -56,10 +55,10 @@ class Plower:
         self.movementControl.move(1)
         self.unfoldPlow()
         self.movementControl.rotateTo("E")
-        self.movementControl.setVelocity(1)
+        self.movementControl.setVelocity(0.9)
 
         while True:
-            self.movementControl.setVelocity(1)
+            self.movementControl.setVelocity(0.9)
             # check if plower will collide with and object
             if (self.sensors.checkProxyArray("Front", 0.9)):
                 self.varOA()
@@ -103,7 +102,7 @@ class Plower:
         if(self.outBoundState):
             if(movement):
                 self.movementControl.stop()
-                self.movementControl.move(0.9)
+                self.movementControl.move(1)
             # fold plow to prevent moving out of bound snow
             self.foldPlow()
 
@@ -137,7 +136,7 @@ class Plower:
         Also has if conditional to check if edge detection has occured during loop
         """
         edgeAdjust = False
-        while(self.sensors.checkProxyArray(direction, 1.5)):
+        while(self.sensors.checkProxyArray(direction, 1.6)):
             # Edge Detection in OA
             if (self.sensors.checkFrontVisionSensor() and not edgeAdjust and not NS):
                 edgeAdjust = True
@@ -227,6 +226,7 @@ class Plower:
                     self.varOA(False,facing)
 
         if(not NS and (edgeMove + edgeAdjust + edgeFinal) == 1):
+            print("After OA doing edge control")
             self.edgeControl(False)
         self.movementControl.rotateTo(facing)
 
