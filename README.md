@@ -29,5 +29,24 @@ We will also be including the Python code to drvie the autonomous plow through t
 
 8. Run plower.py in the shell program by: ("py plower.py" or "python3 plower.py")
 
-## Extra Attached Files
+# File Descriptions
+  ## [Python API](https://github.com/Alfred-Akinkoye/Snow_Plower_4805/tree/main/PythonAPI) folder
+      - This Folder contains the files required to connect to CoppeliaSim and the api's to make calls to it from python
+  ## [Plower.ttm](https://github.com/Alfred-Akinkoye/Snow_Plower_4805/blob/main/Plower.ttm)
+      - The base model file for the vehicle
+  ## [API.py](https://github.com/Alfred-Akinkoye/Snow_Plower_4805/blob/main/api.py)
+      - Contains additional api's we developed to make calls easier to CoppeliaSim
+  ## [MovementControls.py](https://github.com/Alfred-Akinkoye/Snow_Plower_4805/blob/main/movementControl.py)
+      - Contains all functions related to motor controls and vehicle orientation.
+  ## [PLower.py](https://github.com/Alfred-Akinkoye/Snow_Plower_4805/blob/main/plower.py)
+      - Contains the main code to run the program
+      - This is where our base loop resides, and this script calls the other scripts as needed to keep our vehicle on task.
+  ## [Sensors.py](https://github.com/Alfred-Akinkoye/Snow_Plower_4805/blob/main/sensors.py)
+      - Contains all methods to check both the vision and proximity sensors.
+      - Contains to classes
+        - VisionSensor
+        - ProximitySensor
+  ## [Project Proposal](https://github.com/Alfred-Akinkoye/Snow_Plower_4805/blob/main/SYSC4805%20-%20L1_G1%20-%20Jazzberry%20Jam%20-%20Project%20Proposal.pdf)
+      - Contains information of our base plan on how to complete this project
+      - And what we hope to accomplish
 
