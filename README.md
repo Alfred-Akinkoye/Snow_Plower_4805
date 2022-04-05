@@ -4,33 +4,23 @@ Autonomous Snow Plow Project for L1 Group 1 of SYSC 4805
 ## Information
 We will be using this github to share both the CoppeliaSim scenes (Building the robot, the plow, sensors, motors, etc...)<br><br>
 We will also be including the Python code to drvie the autonomous plow through the CoppeliaSim Python API<br><br>
-
-More information will be added to the repo as we complete tasks<br><br>
   
-## Lab 4
-Each student has completed their corresponding task and created a sub-folder under Lab4.
-A Project Main folder has been created for combining our individual lab work each lab into the main project. Currently it only contains the pythonAPI code but will include the model body with attched plow and sensors in the next lab.
+## Set Up
+1. Download Zip File (JazzberryJamDemoSubmission.zip) (You've likely already done this)
 
-Tasks:
-- Build Plow Body (Alfred)
-- Build Unfolding Plow (Edmond)
-- Connect Python API (Michael)
-- Determine Required Sensors and Positioning (Deji)
+2. Unzip the folder in your chosen directory (You've likely already done this)
 
-## Lab 5
-In lab 5 we will be combining the body, plow, and sensors as well as connecting them to the python API and working on some basic movement control.
+3. Using a shell program, "cd" into the unzipped directory
 
-Tasks:
-- Connect Sensors to Robot (Deji)
-- Connect Sensors to PythonAPI (Alfred)
-- Basic Motor Control (Edmond)
-- Connect Plow to Robot (Michael)
+  3.5 if you do not have python3 installed (The program will not run on python 2),
+      intall python3 (Current Version: 3.10.4) (https://www.python.org/downloads/)
 
-## Lab 6
-The group as a whole is working on the progress report together. We had a meeting at the beginning of the lab period to discuss the pathfinding algorithm, and how that would be handled. Then we broke out to handle individual parts of the progress report.
+4. Open the desired evaluation map in CoppeliaSim
 
-Tasks:
-- State Chart (Deji)
-- Github, Event vs Time driven (Alfred)
-- Budget (Edmond)
-- Sequence Diagrams, Real World Sensor Comparisons (Michael)
+5. Load the model (Plower.ttm) into the scene
+
+6. Position "Plower_Base" to [0, -6.25, 0]. (Ensure rotations are [0, 0, 0])
+
+7. Start the coppeliaSim simulation
+
+8. Run plower.py in the shell program by: ("py plower.py" or "python3 plower.py")
