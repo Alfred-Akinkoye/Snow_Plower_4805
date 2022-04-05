@@ -7,8 +7,7 @@ Autonomous Snow Plow Project for L1 Group 1 of SYSC 4805
 - Deji Sayomi (100847393)
 
 ## Information
-We will be using this github to share both the CoppeliaSim scenes (Building the robot, the plow, sensors, motors, etc...)<br><br>
-We will also be including the Python code to drvie the autonomous plow through the CoppeliaSim Python API<br><br>
+The goal of this project is to have a fully autonomus vehicle capable of clearing snow from a designated area whilst avoiding obstacles. This will be achieved with an array of Proximity sensors to allow the vehicle to see surrounding object, and a vision sensor to keep track of when it is inside and out of bounds. The vehicle will have a unique unfolding plow which can be openand closed as needed by the vehicle.
   
 ## Set Up
 1. Download Zip File (JazzberryJamDemoSubmission.zip) (You've likely already done this)
