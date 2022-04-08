@@ -29,18 +29,18 @@ The goal of this project is to have a fully autonomus vehicle capable of clearin
 8. Run plower.py in the shell program by: ("py plower.py" or "python3 plower.py")
 
 # File Descriptions
-  ## [Python API](https://github.com/Alfred-Akinkoye/Snow_Plower_4805/tree/main/PythonAPI) folder
+  ## [Python API](https://github.com/Alfred-Akinkoye/Snow_Plower_4805/tree/main/Main/PythonAPI) folder
   - This Folder contains the files required to connect to CoppeliaSim and the api's to make calls to it from python
-  ## [Plower.ttm](https://github.com/Alfred-Akinkoye/Snow_Plower_4805/blob/main/Plower.ttm)
+  ## [Plower.ttm](https://github.com/Alfred-Akinkoye/Snow_Plower_4805/blob/main/Main/Plower.ttm)
   - The base model file for the vehicle
-  ## [API.py](https://github.com/Alfred-Akinkoye/Snow_Plower_4805/blob/main/api.py)
+  ## [API.py](https://github.com/Alfred-Akinkoye/Snow_Plower_4805/blob/main/Main/api.py)
   - Contains additional api's we developed to make calls easier to CoppeliaSim
-  ## [MovementControls.py](https://github.com/Alfred-Akinkoye/Snow_Plower_4805/blob/main/movementControl.py)
+  ## [MovementControls.py](https://github.com/Alfred-Akinkoye/Snow_Plower_4805/blob/main/Main/movementControl.py)
   - Contains all functions related to motor controls and vehicle orientation.
-  ## [PLower.py](https://github.com/Alfred-Akinkoye/Snow_Plower_4805/blob/main/plower.py)
+  ## [PLower.py](https://github.com/Alfred-Akinkoye/Snow_Plower_4805/blob/main/Main/plower.py)
   - Contains the main code to run the program
   - This is where our base loop resides, and this script calls the other scripts as needed to keep our vehicle on task.
-  ## [Sensors.py](https://github.com/Alfred-Akinkoye/Snow_Plower_4805/blob/main/sensors.py)
+  ## [Sensors.py](https://github.com/Alfred-Akinkoye/Snow_Plower_4805/blob/main/Main/sensors.py)
   - Contains all methods to check both the vision and proximity sensors.
   - Contains to classes
     - VisionSensor
