@@ -37,7 +37,7 @@ The goal of this project is to have a fully autonomus vehicle capable of clearin
   - Contains additional api's we developed to make calls easier to CoppeliaSim
   ## [MovementControls.py](https://github.com/Alfred-Akinkoye/Snow_Plower_4805/blob/main/Main/movementControl.py)
   - Contains all functions related to motor controls and vehicle orientation.
-  ## [PLower.py](https://github.com/Alfred-Akinkoye/Snow_Plower_4805/blob/main/Main/plower.py)
+  ## [Plower.py](https://github.com/Alfred-Akinkoye/Snow_Plower_4805/blob/main/Main/plower.py)
   - Contains the main code to run the program
   - This is where our base loop resides, and this script calls the other scripts as needed to keep our vehicle on task.
   ## [Sensors.py](https://github.com/Alfred-Akinkoye/Snow_Plower_4805/blob/main/Main/sensors.py)
@@ -45,7 +45,6 @@ The goal of this project is to have a fully autonomus vehicle capable of clearin
   - Contains to classes
     - VisionSensor
     - ProximitySensor
-  ## [Project Proposal](https://github.com/Alfred-Akinkoye/Snow_Plower_4805/blob/main/SYSC4805%20-%20L1_G1%20-%20Jazzberry%20Jam%20-%20Project%20Proposal.pdf)
-  - Contains information of our base plan on how to complete this project
-  - And what we hope to accomplish
+  ## [Final Report](https://github.com/Alfred-Akinkoye/Snow_Plower_4805/blob/main/SYSC4805%20-%20L1_G1%20-%20Jazzberry%20Jam%20-%20Final%20Report.pdf)
+  - The final report for the project
 
