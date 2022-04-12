@@ -8,14 +8,18 @@ Autonomous Snow Plow Project for L1 Group 1 of SYSC 4805
 
 ## Information
 The goal of this project is to have a fully autonomus vehicle capable of clearing snow from a designated area whilst avoiding obstacles. This will be achieved with an array of Proximity sensors to allow the vehicle to see surrounding object, and a vision sensor to keep track of when it is inside and out of bounds. The vehicle will have a unique unfolding plow which can be openand closed as needed by the vehicle.
-  
+
+## Example
+The following image is the result of testing on Test_Map_2. Videos are included in the repo demonstrating test performance of The Plower in two of the testing maps.
+![alt text](https://github.com/Alfred-Akinkoye/Snow_Plower_4805/blob/main/Testing_Map_2.png)
+
 ## Set Up
 1. Download Zip File (JazzberryJamDemoSubmission.zip) (You've likely already done this)
 
 2. Unzip the folder in your chosen directory (You've likely already done this)
 
 3. Using a shell program, "cd" into the unzipped directory
-    
+   
     3.5 if you do not have python3 installed (The program will not run on python 2), install python3 (Current Version: 3.10.4) (https://www.python.org/downloads/)
 
 4. Open the desired evaluation map in CoppeliaSim
@@ -47,5 +51,4 @@ The goal of this project is to have a fully autonomus vehicle capable of clearin
   - Contains to classes
     - VisionSensor
     - ProximitySensor
-
 
